@@ -21,19 +21,14 @@ int main()
         printf("Could not initialize device0\n");
     }
 
-    // Read register
-    uint8_t config;
-    nrf24l01_read_config(&device0, &config);
-    printf("Value: %d\n", config);
+    bool pwr_up;
+    nrf24l01_read_pwr_up(&device0, &pwr_up);
+    printf("PWR_UP before: %d\n", pwr_up);
 
-    // Write PWR_UP = 1 to the register
-    config |= 0b00000010;
-    nrf24l01_write_config(&device0, config);
+    nrf24l01_write_pwr_up(&device0, 1);
 
-    // Read register
-    nrf24l01_read_config(&device0, &config);
-    printf("Value: %d\n", config);
-
+    nrf24l01_read_pwr_up(&device0, &pwr_up);
+    printf("PWR_UP after: %d\n", pwr_up);
 
 
     nrf24l01 device1;
@@ -41,15 +36,11 @@ int main()
         printf("Could not initialize device1\n");
     }
 
-    // Read register
-    nrf24l01_read_config(&device1, &config);
-    printf("Value: %d\n", config);
+    nrf24l01_read_pwr_up(&device1, &pwr_up);
+    printf("PWR_UP before: %d\n", pwr_up);
 
-    // Write PWR_UP = 1 to the register
-    config |= 0b00000010;
-    nrf24l01_write_config(&device1, config);
+    nrf24l01_write_pwr_up(&device1, 1);
 
-    // Read register
-    nrf24l01_read_config(&device1, &config);
-    printf("Value: %d\n", config);
+    nrf24l01_read_pwr_up(&device1, &pwr_up);
+    printf("PWR_UP after: %d\n", pwr_up);
 }
