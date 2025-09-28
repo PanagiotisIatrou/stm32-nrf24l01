@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(pico-nrf24l01 pico-nrf24l01.c )
+add_executable(pico-nrf24l01 pico-nrf24l01.c src/nrf24l01.c)
 
 pico_set_program_name(pico-nrf24l01 "pico-nrf24l01")
 pico_set_program_version(pico-nrf24l01 "0.1")
