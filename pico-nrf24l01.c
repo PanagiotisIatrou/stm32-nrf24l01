@@ -17,7 +17,9 @@ int main()
     sleep_ms(1000);
 
     nrf24l01 device0;
-    nrf24l01_init(&device0, 19, 16, 18, 14, 15);
+    if (!nrf24l01_init(&device0, 19, 16, 18, 14, 15)) {
+        printf("Could not initialize device0\n");
+    }
 
     // Read register
     uint8_t config = nrf24l01_read_config(&device0);
@@ -34,7 +36,9 @@ int main()
 
 
     nrf24l01 device1;
-    nrf24l01_init(&device1, 3, 4, 2, 12, 13);
+    if (!nrf24l01_init(&device1, 3, 4, 2, 12, 13)) {
+        printf("Could not initialize device1\n");
+    }
 
     // Read register
     config = nrf24l01_read_config(&device1);
