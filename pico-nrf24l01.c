@@ -22,7 +22,8 @@ int main()
     }
 
     // Read register
-    uint8_t config = nrf24l01_read_config(&device0);
+    uint8_t config;
+    nrf24l01_read_config(&device0, &config);
     printf("Value: %d\n", config);
 
     // Write PWR_UP = 1 to the register
@@ -30,7 +31,7 @@ int main()
     nrf24l01_write_config(&device0, config);
 
     // Read register
-    config = nrf24l01_read_config(&device0);
+    nrf24l01_read_config(&device0, &config);
     printf("Value: %d\n", config);
 
 
@@ -41,7 +42,7 @@ int main()
     }
 
     // Read register
-    config = nrf24l01_read_config(&device1);
+    nrf24l01_read_config(&device1, &config);
     printf("Value: %d\n", config);
 
     // Write PWR_UP = 1 to the register
@@ -49,6 +50,6 @@ int main()
     nrf24l01_write_config(&device1, config);
 
     // Read register
-    config = nrf24l01_read_config(&device1);
+    nrf24l01_read_config(&device1, &config);
     printf("Value: %d\n", config);
 }
