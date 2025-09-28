@@ -5,8 +5,8 @@
 
 bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, uint8_t csn, uint8_t ce) {
     // Check if the provided SPI pin combination is valid
-    spi_inst_t* spi = pins_to_spi(mosi, miso, sck);
-    if (spi == NULL) {
+    device->spi = pins_to_spi(mosi, miso, sck);
+    if (device->spi == NULL) {
         return false;
     }
 
@@ -28,12 +28,12 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
     gpio_put(ce, 0);
 
     // Setup MISO, SCK and MOSI pins
-    if (spi == spi0 && !initialized_spi0) {
+    if (device->spi == spi0 && !initialized_spi0) {
         initialized_spi0 = true;
-        spi_init(spi, 1000000);
-    } else if (spi == spi1 && !initialized_spi1) {
+        spi_init(device->spi, 1000000);
+    } else if (device->spi == spi1 && !initialized_spi1) {
         initialized_spi1 = true;
-        spi_init(spi, 1000000);
+        spi_init(device->spi, 1000000);
     }
     gpio_set_function(miso, GPIO_FUNC_SPI);
     gpio_set_function(sck, GPIO_FUNC_SPI);
@@ -45,9 +45,9 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
 uint8_t nrf24l01_read_config(nrf24l01 *device) {
     gpio_put(device->csn, 0);
     uint8_t cmd = 0x00;
-    spi_write_blocking(spi0, &cmd, 1);
+    spi_write_blocking(device->spi, &cmd, 1);
     uint8_t config = 0;
-    spi_read_blocking(spi0, 0x00, &config, 1);
+    spi_read_blocking(device->spi, 0x00, &config, 1);
     gpio_put(device->csn, 1);
 
     return config;
@@ -56,7 +56,7 @@ uint8_t nrf24l01_read_config(nrf24l01 *device) {
 void nrf24l01_write_config(nrf24l01 *device, uint8_t value) {
     gpio_put(device->csn, 0);
     uint8_t cmd = 0x20 | 0x00;
-    spi_write_blocking(spi0, &cmd, 1);
-    spi_write_blocking(spi0, &value, 1);
+    spi_write_blocking(device->spi, &cmd, 1);
+    spi_write_blocking(device->spi, &value, 1);
     gpio_put(device->csn, 1);
 }

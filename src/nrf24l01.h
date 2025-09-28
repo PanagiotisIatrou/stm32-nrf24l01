@@ -8,6 +8,7 @@ typedef struct nrf24l01 {
     uint8_t sck;
     uint8_t csn;
     uint8_t ce;
+    spi_inst_t* spi;
 } nrf24l01;
 
 static bool initialized_spi0 = false;
