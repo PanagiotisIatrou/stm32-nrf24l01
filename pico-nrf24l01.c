@@ -32,4 +32,14 @@ int main()
     // Configure device0 as TX and device1 as RX
     nrf24l01_set_as_primary_tx(&device0);
     nrf24l01_set_as_primary_rx(&device1);
+
+    // Configure TX/RX
+    uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x05 };
+    nrf24l01_config_tx(&device0, address);
+    nrf24l01_config_rx(&device1, address);
+
+    // Enable both devices
+    gpio_put(15, 1);
+    gpio_put(13, 1);
+    sleep_us(130);
 }

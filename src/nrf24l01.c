@@ -79,3 +79,20 @@ void nrf24l01_set_as_primary_rx(nrf24l01 *device) {
     config |= 0b00000001;
     register_map_write_register(&device->register_map, 0x00, &config, 1);
 }
+
+void nrf24l01_config_tx(nrf24l01 *device, uint8_t *value) {
+    // Write TX_ADDR
+    register_map_write_register(&device->register_map, 0x10, value, 5);
+
+    // Write RX_ADDR_P0
+    register_map_write_register(&device->register_map, 0x0A, value, 5);
+}
+
+void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value) {
+    // Write RX_ADDR_P1
+    register_map_write_register(&device->register_map, 0x0B, value, 5);
+
+    // Write RX_PW_Px
+    uint8_t len = 32;
+    register_map_write_register(&device->register_map, 0x11, &len, 1);
+}
