@@ -22,3 +22,7 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
 void nrf24l01_read_pwr_up(nrf24l01 *device, bool *value);
 
 void nrf24l01_write_pwr_up(nrf24l01 *device, bool value);
+
+void nrf24l01_read_prim_rx(nrf24l01 *device, bool *value);
+
+void nrf24l01_write_prim_rx(nrf24l01 *device, bool value);

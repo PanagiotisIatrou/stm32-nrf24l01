@@ -21,14 +21,14 @@ int main()
         printf("Could not initialize device0\n");
     }
 
-    bool pwr_up;
-    nrf24l01_read_pwr_up(&device0, &pwr_up);
-    printf("PWR_UP before: %d\n", pwr_up);
+    bool prim_rx;
+    nrf24l01_read_prim_rx(&device0, &prim_rx);
+    printf("prim_rx before: %d\n", prim_rx);
 
-    nrf24l01_write_pwr_up(&device0, 1);
+    nrf24l01_write_prim_rx(&device0, 1);
 
-    nrf24l01_read_pwr_up(&device0, &pwr_up);
-    printf("PWR_UP after: %d\n", pwr_up);
+    nrf24l01_read_prim_rx(&device0, &prim_rx);
+    printf("prim_rx after: %d\n", prim_rx);
 
 
     nrf24l01 device1;
@@ -36,11 +36,11 @@ int main()
         printf("Could not initialize device1\n");
     }
 
-    nrf24l01_read_pwr_up(&device1, &pwr_up);
-    printf("PWR_UP before: %d\n", pwr_up);
+    nrf24l01_read_prim_rx(&device1, &prim_rx);
+    printf("prim_rx before: %d\n", prim_rx);
 
-    nrf24l01_write_pwr_up(&device1, 1);
+    nrf24l01_write_prim_rx(&device1, 1);
 
-    nrf24l01_read_pwr_up(&device1, &pwr_up);
-    printf("PWR_UP after: %d\n", pwr_up);
+    nrf24l01_read_prim_rx(&device1, &prim_rx);
+    printf("prim_rx after: %d\n", prim_rx);
 }

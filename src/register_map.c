@@ -15,7 +15,7 @@ void register_map_read_register(register_map *self, uint8_t address, uint8_t *re
     spi_write_blocking(self->spi, &cmd, 1);
 
     // Read the bytes
-    spi_read_blocking(self->spi, 0x00, result_bytes, number_of_bytes);
+    spi_read_blocking(self->spi, 0xFF, result_bytes, number_of_bytes);
 
     gpio_put(self->csn, 1);
 }

@@ -66,3 +66,23 @@ void nrf24l01_write_pwr_up(nrf24l01 *device, bool value) {
     }
     register_map_write_register(&device->register_map, 0x00, &config, 1);
 }
+
+void nrf24l01_read_prim_rx(nrf24l01 *device, bool *value) {
+    uint8_t config;
+    register_map_read_register(&device->register_map, 0x00, &config, 1);
+    *value = config & 0b00000001;
+}
+
+void nrf24l01_write_prim_rx(nrf24l01 *device, bool value) {
+    // Read the config register
+    uint8_t config;
+    register_map_read_register(&device->register_map, 0x00, &config, 1);
+
+    // Edit the config byte and write it
+    if (value) {
+        config |= 0b00000001;
+    } else {
+        config &= 0b11111110;
+    }
+    register_map_write_register(&device->register_map, 0x00, &config, 1);
+}
