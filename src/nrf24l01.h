@@ -28,3 +28,7 @@ void nrf24l01_set_as_primary_rx(nrf24l01 *device);
 void nrf24l01_config_tx(nrf24l01 *device, uint8_t *value);
 
 void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value);
+
+void nrf24l01_send_packet(nrf24l01 *device, uint8_t *value);
+
+void nrf24l01_receive_packet(nrf24l01 *device, bool *value);

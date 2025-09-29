@@ -1,5 +1,6 @@
 #include "nrf24l01.h"
 
+#include <stdio.h>
 #include "pico/stdlib.h"
 #include "common.h"
 
@@ -20,11 +21,11 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
     }
 
     // Initialize the device struct
-    device->mosi = mosi,
-    device->miso = miso,
-    device->sck = sck,
-    device->csn = csn,
-    device->ce = ce,
+    device->mosi = mosi;
+    device->miso = miso;
+    device->sck = sck;
+    device->csn = csn;
+    device->ce = ce;
 
     // Setup CSN pin
     gpio_init(csn);
@@ -57,7 +58,7 @@ void nrf24l01_power_up(nrf24l01 *device) {
     register_map_write_register(&device->register_map, 0x00, &config, 1);
 
     // Wait for the Tpd2stby delay
-    sleep_us(1500);
+    sleep_us(5000);
 }
 
 void nrf24l01_set_as_primary_tx(nrf24l01 *device) {
@@ -92,7 +93,69 @@ void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value) {
     // Write RX_ADDR_P1
     register_map_write_register(&device->register_map, 0x0B, value, 5);
 
-    // Write RX_PW_Px
+    // Write RX_PW_P1
     uint8_t len = 32;
-    register_map_write_register(&device->register_map, 0x11, &len, 1);
+    register_map_write_register(&device->register_map, 0x12, &len, 1);
+}
+
+void nrf24l01_send_packet(nrf24l01 *device, uint8_t *value) {
+    gpio_put(device->csn, 0);
+
+    // Write the command
+    uint8_t cmd = 0b10100000;
+    spi_write_blocking(device->spi, &cmd, 1);
+
+    // Write the bytes
+    spi_write_blocking(device->spi, value, 32);
+
+    gpio_put(device->csn, 1);
+
+    gpio_put(device->ce, 1);
+    sleep_us(15);
+    gpio_put(device->ce, 0);
+
+    // Wait for either TX_DS or MAX_RT
+    uint8_t status;
+    while (true) {
+        // Read the config register
+        register_map_read_register(&device->register_map, 0x07, &status, 1);
+        bool tx_ds = (status & 0b00100000) >> 5;
+        bool max_rt = (status & 0b00010000) >> 4;
+        if (tx_ds) {
+            printf("tx_ds\n");
+            break;
+        }
+        if (max_rt) {
+            printf("max_rt\n");
+            break;
+        }
+    }
+
+    // Clear TX_DS and MAX_RT
+    uint8_t cleared = 0b00110000;
+    register_map_write_register(&device->register_map, 0x07, &cleared, 1);
+}
+
+void nrf24l01_receive_packet(nrf24l01 *device, bool *value) {
+    // Read RX_DR
+    uint8_t status;
+    register_map_read_register(&device->register_map, 0x07, &status, 1);
+    *value = (status & 0b01000000) >> 6;
+
+    if (*value) {
+        gpio_put(device->csn, 0);
+
+        // Write the command
+        uint8_t cmd = 0b01100001;
+        spi_write_blocking(device->spi, &cmd, 1);
+
+        // Write the bytes
+        uint8_t bytes[32];
+        spi_read_blocking(device->spi, 0xFF, bytes, 32);
+
+        gpio_put(device->csn, 1);
+
+        printf("Byte 0: 0x%02X\n", bytes[0]);
+        printf("Byte 31: 0x%02X\n", bytes[31]);
+    }
 }
