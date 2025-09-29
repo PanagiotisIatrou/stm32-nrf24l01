@@ -47,42 +47,35 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
     return true;
 }
 
-void nrf24l01_read_pwr_up(nrf24l01 *device, bool *value) {
-    uint8_t config;
-    register_map_read_register(&device->register_map, 0x00, &config, 1);
-    *value = (config & 0b00000010) >> 1;
-}
-
-void nrf24l01_write_pwr_up(nrf24l01 *device, bool value) {
+void nrf24l01_power_up(nrf24l01 *device) {
     // Read the config register
     uint8_t config;
     register_map_read_register(&device->register_map, 0x00, &config, 1);
 
     // Edit the config byte and write it
-    if (value) {
-        config |= 0b00000010;
-    } else {
-        config &= 0b11111101;
-    }
+    config |= 0b00000010;
+    register_map_write_register(&device->register_map, 0x00, &config, 1);
+
+    // Wait for the Tpd2stby delay
+    sleep_us(1500);
+}
+
+void nrf24l01_set_as_primary_tx(nrf24l01 *device) {
+    // Read the config register
+    uint8_t config;
+    register_map_read_register(&device->register_map, 0x00, &config, 1);
+
+    // Edit the config byte and write it
+    config &= 0b11111110;
     register_map_write_register(&device->register_map, 0x00, &config, 1);
 }
 
-void nrf24l01_read_prim_rx(nrf24l01 *device, bool *value) {
-    uint8_t config;
-    register_map_read_register(&device->register_map, 0x00, &config, 1);
-    *value = config & 0b00000001;
-}
-
-void nrf24l01_write_prim_rx(nrf24l01 *device, bool value) {
+void nrf24l01_set_as_primary_rx(nrf24l01 *device) {
     // Read the config register
     uint8_t config;
     register_map_read_register(&device->register_map, 0x00, &config, 1);
 
     // Edit the config byte and write it
-    if (value) {
-        config |= 0b00000001;
-    } else {
-        config &= 0b11111110;
-    }
+    config |= 0b00000001;
     register_map_write_register(&device->register_map, 0x00, &config, 1);
 }
