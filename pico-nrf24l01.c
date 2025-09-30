@@ -39,8 +39,7 @@ int main()
     nrf24l01_config_rx(&device1, address);
 
     // Enable RX device
-    gpio_put(device1.ce, 1);
-    sleep_us(130);
+    nrf24l01_start_listening(&device1);
 
     uint8_t payload[32] = {
         0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1,
@@ -54,6 +53,6 @@ int main()
     nrf24l01_receive_packet(&device1, &received);
     printf("Received: %d\n", received);
 
-    // Disable
-    gpio_put(device1.ce, 0);
+    // Disable RX device
+    nrf24l01_stop_listening(&device1);
 }

@@ -99,20 +99,16 @@ void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value) {
 }
 
 void nrf24l01_send_packet(nrf24l01 *device, uint8_t *value) {
+    // Write the payload
     gpio_put(device->csn, 0);
-
-    // Write the command
     uint8_t cmd = 0b10100000;
     spi_write_blocking(device->spi, &cmd, 1);
-
-    // Write the bytes
     spi_write_blocking(device->spi, value, 32);
-
     gpio_put(device->csn, 1);
 
+    // Enable TX mode
     gpio_put(device->ce, 1);
-    sleep_us(15);
-    gpio_put(device->ce, 0);
+    sleep_us(140); // 10 + 130
 
     // Wait for either TX_DS or MAX_RT
     uint8_t status;
@@ -131,8 +127,11 @@ void nrf24l01_send_packet(nrf24l01 *device, uint8_t *value) {
         }
     }
 
+    // Disable TX mode
+    gpio_put(device->ce, 0);
+
     // Clear TX_DS and MAX_RT
-    uint8_t cleared = 0b00110000;
+    uint8_t cleared = status | 0b00110000;
     register_map_write_register(&device->register_map, 0x07, &cleared, 1);
 }
 
@@ -158,4 +157,13 @@ void nrf24l01_receive_packet(nrf24l01 *device, bool *value) {
         printf("Byte 0: 0x%02X\n", bytes[0]);
         printf("Byte 31: 0x%02X\n", bytes[31]);
     }
+}
+
+void nrf24l01_start_listening(nrf24l01 *device) {
+    gpio_put(device->ce, 1);
+    sleep_us(130);
+}
+
+void nrf24l01_stop_listening(nrf24l01 *device) {
+    gpio_put(device->ce, 0);
 }
