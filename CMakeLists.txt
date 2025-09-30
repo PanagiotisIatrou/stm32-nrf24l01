@@ -46,7 +46,7 @@ pico_enable_stdio_usb(pico-nrf24l01 1)
 
 # Add the standard library to the build
 target_link_libraries(pico-nrf24l01
-        pico_stdlib hardware_spi)
+        pico_stdlib hardware_spi pico_multicore)
 
 # Add the standard include files to the build
 target_include_directories(pico-nrf24l01 PRIVATE

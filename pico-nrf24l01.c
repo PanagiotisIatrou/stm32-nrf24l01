@@ -1,7 +1,85 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "pico/multicore.h"
 
 #include "src/nrf24l01.h"
+
+void rx() {
+    nrf24l01 device;
+    if (!nrf24l01_init(&device, 11, 12, 10, 21, 20)) {
+        printf("Could not initialize RX device\n");
+    }
+
+    // Power up the device
+    nrf24l01_power_up(&device);
+
+    // Configure device as RX
+    nrf24l01_set_as_primary_rx(&device);
+
+    // Configure RX
+    uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
+    nrf24l01_config_rx(&device, address);
+
+    // Flush RX and TX FIFOs
+    uint8_t flush = 0b11100001;
+    register_map_write_register(&device.register_map, 0xE1, &flush, 1);
+    flush = 0b11100010;
+    register_map_write_register(&device.register_map, 0xE2, &flush, 1);
+
+    // Enable RX device
+    nrf24l01_start_listening(&device);
+
+    bool received;
+    nrf24l01_receive_packet(&device, &received);
+
+    // Disable RX device
+    nrf24l01_stop_listening(&device);
+}
+
+void tx() {
+    sleep_ms(2000);
+
+    // Initialize the devices
+    nrf24l01 device;
+    if (!nrf24l01_init(&device, 19, 16, 18, 27, 26)) {
+        printf("Could not initialize TX device\n");
+    }
+
+    // Power up the device
+    nrf24l01_power_up(&device);
+
+    // Configure device as TX
+    nrf24l01_set_as_primary_tx(&device);
+
+    // Configure TX
+    uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
+    nrf24l01_config_tx(&device, address);
+
+    // Flush RX and TX FIFOs
+    uint8_t flush = 0b11100001;
+    register_map_write_register(&device.register_map, 0xE1, &flush, 1);
+    flush = 0b11100010;
+    register_map_write_register(&device.register_map, 0xE2, &flush, 1);
+
+    uint8_t packet0[32] = {
+        0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1,
+        0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1,
+        0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1,
+        0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1
+    };
+    uint8_t packet1[32] = {
+        0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2,
+        0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2,
+        0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2,
+        0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2
+    };
+    uint8_t *payload[2] = { packet0, packet1 };
+    for (int i = 0; ; i++) {
+        printf("\n======== Sending packets %d =======\n", i);
+        nrf24l01_send_packets(&device, payload, 2);
+        sleep_ms(1000);
+    }
+}
 
 int main()
 {
@@ -15,44 +93,10 @@ int main()
 
     // Wait for init
     sleep_ms(100);
+    
+    multicore_launch_core1(tx);
+    rx();
 
-    // Initialize the devices
-    nrf24l01 device0, device1;
-    if (!nrf24l01_init(&device0, 19, 16, 18, 27, 26)) {
-        printf("Could not initialize device0\n");
-    }
-    if (!nrf24l01_init(&device1, 11, 12, 10, 21, 20)) {
-        printf("Could not initialize device1\n");
-    }
-
-    // Power up the devices
-    nrf24l01_power_up(&device0);
-    nrf24l01_power_up(&device1);
-
-    // Configure device0 as TX and device1 as RX
-    nrf24l01_set_as_primary_tx(&device0);
-    nrf24l01_set_as_primary_rx(&device1);
-
-    // Configure TX/RX
-    uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
-    nrf24l01_config_tx(&device0, address);
-    nrf24l01_config_rx(&device1, address);
-
-    // Enable RX device
-    nrf24l01_start_listening(&device1);
-
-    uint8_t payload[32] = {
-        0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1,
-        0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1,
-        0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1,
-        0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1,
-    };
-    nrf24l01_send_packet(&device0, payload);
-
-    bool received;
-    nrf24l01_receive_packet(&device1, &received);
-    printf("Received: %d\n", received);
-
-    // Disable RX device
-    nrf24l01_stop_listening(&device1);
+    sleep_ms(100000);
+    return 0;
 }

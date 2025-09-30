@@ -98,64 +98,84 @@ void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value) {
     register_map_write_register(&device->register_map, 0x12, &len, 1);
 }
 
-void nrf24l01_send_packet(nrf24l01 *device, uint8_t *value) {
-    // Write the payload
-    gpio_put(device->csn, 0);
-    uint8_t cmd = 0b10100000;
-    spi_write_blocking(device->spi, &cmd, 1);
-    spi_write_blocking(device->spi, value, 32);
-    gpio_put(device->csn, 1);
+void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
+    // Send the packets
+    for (int i = 0; i < count; i++) {
+        // Write the payload
+        gpio_put(device->csn, 0);
+        uint8_t cmd = 0b10100000;
+        spi_write_blocking(device->spi, &cmd, 1);
+        spi_write_blocking(device->spi, value[i], 32);
+        gpio_put(device->csn, 1);
 
-    // Enable TX mode
-    gpio_put(device->ce, 1);
-    sleep_us(140); // 10 + 130
+        // Enable TX mode
+        gpio_put(device->ce, 1);
+        sleep_us(15); // 10 + 130
+        // Disable TX mode
+        gpio_put(device->ce, 0);
 
-    // Wait for either TX_DS or MAX_RT
-    uint8_t status;
-    while (true) {
-        // Read the config register
-        register_map_read_register(&device->register_map, 0x07, &status, 1);
-        bool tx_ds = (status & 0b00100000) >> 5;
-        bool max_rt = (status & 0b00010000) >> 4;
-        if (tx_ds) {
-            printf("tx_ds\n");
-            break;
-        }
-        if (max_rt) {
-            printf("max_rt\n");
-            break;
+        // Wait for either TX_DS or MAX_RT
+        uint8_t status;
+        while (true) {
+            // Read TX_DS and MAX_RT
+            register_map_read_register(&device->register_map, 0x07, &status, 1);
+            bool tx_ds = (status & 0b00100000) >> 5;
+            bool max_rt = (status & 0b00010000) >> 4;
+            if (tx_ds) {
+                printf("tx_ds\n");
+                uint8_t cleared = 0b00100000;
+                register_map_write_register(&device->register_map, 0x07, &cleared, 1);
+                break;
+            }
+            if (max_rt) {
+                printf("max_rt\n");
+                uint8_t cleared = 0b00010000;
+                register_map_write_register(&device->register_map, 0x07, &cleared, 1);
+
+                // Resend the packet
+                gpio_put(device->csn, 0);
+                uint8_t cmd = 0b11100011;
+                spi_write_blocking(device->spi, &cmd, 1);
+                gpio_put(device->csn, 1);
+
+                // Enable TX mode
+                gpio_put(device->ce, 1);
+                sleep_us(15); // 10 + 130
+                // Disable TX mode
+                gpio_put(device->ce, 0);
+            }
         }
     }
-
-    // Disable TX mode
-    gpio_put(device->ce, 0);
-
-    // Clear TX_DS and MAX_RT
-    uint8_t cleared = status | 0b00110000;
-    register_map_write_register(&device->register_map, 0x07, &cleared, 1);
 }
 
 void nrf24l01_receive_packet(nrf24l01 *device, bool *value) {
-    // Read RX_DR
-    uint8_t status;
-    register_map_read_register(&device->register_map, 0x07, &status, 1);
-    *value = (status & 0b01000000) >> 6;
+    while (true) {
+        // Read RX_DR
+        uint8_t status;
+        register_map_read_register(&device->register_map, 0x07, &status, 1);
+        *value = (status & 0b01000000) >> 6;
 
-    if (*value) {
-        gpio_put(device->csn, 0);
+        if (*value) {
+            // Read the payload
+            gpio_put(device->csn, 0);
+            uint8_t cmd = 0b01100001;
+            spi_write_blocking(device->spi, &cmd, 1);
+            uint8_t bytes[32];
+            spi_read_blocking(device->spi, 0xFF, bytes, 32);
+            gpio_put(device->csn, 1);
 
-        // Write the command
-        uint8_t cmd = 0b01100001;
-        spi_write_blocking(device->spi, &cmd, 1);
+            // Check RX_EMPTY to see if there are more packets
+            uint8_t fifo_status;
+            register_map_read_register(&device->register_map, 0x17, &fifo_status, 1);
+            bool rx_empty = (fifo_status & 0b00000001);
+            if (rx_empty) {
+                // Clear RX_DR
+                uint8_t cleared = 0b01000000;
+                register_map_write_register(&device->register_map, 0x07, &cleared, 1);
+            }
 
-        // Write the bytes
-        uint8_t bytes[32];
-        spi_read_blocking(device->spi, 0xFF, bytes, 32);
-
-        gpio_put(device->csn, 1);
-
-        printf("Byte 0: 0x%02X\n", bytes[0]);
-        printf("Byte 31: 0x%02X\n", bytes[31]);
+            printf("Byte 0, 31: 0x%02X, 0x%02X\n", bytes[0], bytes[31]);
+        }
     }
 }
 
