@@ -121,13 +121,11 @@ void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
             bool tx_ds = (status & 0b00100000) >> 5;
             bool max_rt = (status & 0b00010000) >> 4;
             if (tx_ds) {
-                printf("tx_ds\n");
                 uint8_t cleared = 0b00100000;
                 register_map_write_register(&device->register_map, 0x07, &cleared, 1);
                 break;
             }
             if (max_rt) {
-                printf("max_rt\n");
                 uint8_t cleared = 0b00010000;
                 register_map_write_register(&device->register_map, 0x07, &cleared, 1);
 
@@ -139,7 +137,7 @@ void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
 
                 // Start the transmission
                 gpio_put(device->ce, 1);
-                sleep_us(15); // 10 + 130
+                sleep_us(15);
                 gpio_put(device->ce, 0);
             }
         }
