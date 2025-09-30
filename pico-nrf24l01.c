@@ -20,17 +20,26 @@ void rx() {
     uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
     nrf24l01_config_rx(&device, address);
 
-    // Flush RX and TX FIFOs
-    uint8_t flush = 0b11100001;
-    register_map_write_register(&device.register_map, 0xE1, &flush, 1);
-    flush = 0b11100010;
-    register_map_write_register(&device.register_map, 0xE2, &flush, 1);
+    // Flush TX FIFO
+    gpio_put(device.csn, 0);
+    uint8_t cmd = 0b11100001;
+    spi_write_blocking(device.spi, &cmd, 1);
+    gpio_put(device.csn, 1);
+
+    // Flush RX FIFO
+    gpio_put(device.csn, 0);
+    cmd = 0b11100010;
+    spi_write_blocking(device.spi, &cmd, 1);
+    gpio_put(device.csn, 1);
 
     // Enable RX device
     nrf24l01_start_listening(&device);
 
-    bool received;
-    nrf24l01_receive_packet(&device, &received);
+    for (int i = 0; i < 1000; i++) {
+        uint8_t received[3];
+        nrf24l01_receive_packet(&device, received);
+        printf("Received %d: 0x%02X, 0x%02X, 0x%02X\n", i, received[0], received[1], received[2]);
+    }
 
     // Disable RX device
     nrf24l01_stop_listening(&device);
@@ -55,11 +64,17 @@ void tx() {
     uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
     nrf24l01_config_tx(&device, address);
 
-    // Flush RX and TX FIFOs
-    uint8_t flush = 0b11100001;
-    register_map_write_register(&device.register_map, 0xE1, &flush, 1);
-    flush = 0b11100010;
-    register_map_write_register(&device.register_map, 0xE2, &flush, 1);
+    // Flush TX FIFO
+    gpio_put(device.csn, 0);
+    uint8_t cmd = 0b11100001;
+    spi_write_blocking(device.spi, &cmd, 1);
+    gpio_put(device.csn, 1);
+
+    // Flush RX FIFO
+    gpio_put(device.csn, 0);
+    cmd = 0b11100010;
+    spi_write_blocking(device.spi, &cmd, 1);
+    gpio_put(device.csn, 1);
 
     uint8_t packet0[32] = {
         0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1,
@@ -73,11 +88,16 @@ void tx() {
         0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2,
         0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2, 0xB2
     };
-    uint8_t *payload[2] = { packet0, packet1 };
-    for (int i = 0; ; i++) {
-        printf("\n======== Sending packets %d =======\n", i);
-        nrf24l01_send_packets(&device, payload, 2);
-        sleep_ms(1000);
+    uint8_t packet2[32] = {
+        0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3,
+        0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3,
+        0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3,
+        0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3
+    };
+    uint8_t *payload[3] = { packet0, packet1, packet2 };
+    for (int i = 0; i < 1000; i++) {
+        // printf("\n======== Sending packets %d =======\n", i);
+        nrf24l01_send_packets_fast(&device, payload, 3);
     }
 }
 

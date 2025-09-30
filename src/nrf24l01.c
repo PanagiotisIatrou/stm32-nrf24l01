@@ -121,21 +121,17 @@ void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
             bool tx_ds = (status & 0b00100000) >> 5;
             bool max_rt = (status & 0b00010000) >> 4;
             if (tx_ds) {
+                // Clear TX_DS
                 uint8_t cleared = 0b00100000;
                 register_map_write_register(&device->register_map, 0x07, &cleared, 1);
                 break;
             }
             if (max_rt) {
+                // Clear MAX_rt
                 uint8_t cleared = 0b00010000;
                 register_map_write_register(&device->register_map, 0x07, &cleared, 1);
 
-                // Rewrite the payload
-                gpio_put(device->csn, 0);
-                uint8_t cmd = 0b11100011;
-                spi_write_blocking(device->spi, &cmd, 1);
-                gpio_put(device->csn, 1);
-
-                // Start the transmission
+                // Restart the transmission of the packet
                 gpio_put(device->ce, 1);
                 sleep_us(15);
                 gpio_put(device->ce, 0);
@@ -144,33 +140,98 @@ void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
     }
 }
 
-void nrf24l01_receive_packet(nrf24l01 *device, bool *value) {
+void nrf24l01_send_packets_fast(nrf24l01 *device, uint8_t **value, int count) {
+    // Clear any leftover packets
+    gpio_put(device->csn, 0);
+    uint8_t cmd = 0b11100001; // FLUSH_TX
+    spi_write_blocking(device->spi, &cmd, 1);
+    gpio_put(device->csn, 1);
+
+    // Preload the FIFO clamp
+    int preload_count = (count > 3 ? 3 : count);
+    for (int i = 0; i < preload_count; i++) {
+        gpio_put(device->csn, 0);
+        uint8_t cmd = 0b10100000;
+        spi_write_blocking(device->spi, &cmd, 1);
+        spi_write_blocking(device->spi, value[i], 32);
+        gpio_put(device->csn, 1);
+    }
+
+    // Start sending
+    gpio_put(device->ce, 1);
+    for (int i = 0; i < count; i++) {
+        while (true) {
+            // Wait for TX_DS or MAX_RT
+            uint8_t status;
+            register_map_read_register(&device->register_map, 0x07, &status, 1);
+            bool tx_ds = (status & 0b00100000) >> 5;
+            bool max_rt = (status & 0b00010000) >> 4;
+            if (tx_ds) {
+                // Clear TX_DS
+                uint8_t cleared = 0b00100000;
+                register_map_write_register(&device->register_map, 0x07, &cleared, 1);
+
+                // Send the next packet if it exists
+                if (i + preload_count < count) {
+                    gpio_put(device->csn, 0);
+                    uint8_t cmd = 0b10100000;
+                    spi_write_blocking(device->spi, &cmd, 1);
+                    spi_write_blocking(device->spi, value[i + preload_count], 32);
+                    gpio_put(device->csn, 1);
+                }
+
+                break;
+            }
+            if (max_rt) {
+                // Clear MAX_RT
+                uint8_t cleared = 0b00010000;
+                register_map_write_register(&device->register_map, 0x07, &cleared, 1);
+
+                gpio_put(device->ce, 0);
+                sleep_us(15);
+                gpio_put(device->ce, 1);
+            }
+        }
+    }
+
+    gpio_put(device->ce, 0);
+}
+
+void nrf24l01_receive_packet(nrf24l01 *device, uint8_t *value) {
+    int count = 0;
     while (true) {
         // Read RX_DR
         uint8_t status;
         register_map_read_register(&device->register_map, 0x07, &status, 1);
-        *value = (status & 0b01000000) >> 6;
+        bool rx_dr = (status & 0b01000000) >> 6;
 
-        if (*value) {
-            // Read the payload
-            gpio_put(device->csn, 0);
-            uint8_t cmd = 0b01100001;
-            spi_write_blocking(device->spi, &cmd, 1);
-            uint8_t bytes[32];
-            spi_read_blocking(device->spi, 0xFF, bytes, 32);
-            gpio_put(device->csn, 1);
+        if (rx_dr) {
+            // Clear RX_DR
+            uint8_t cleared = 0b01000000;
+            register_map_write_register(&device->register_map, 0x07, &cleared, 1);
 
-            // Check RX_EMPTY to see if there are more packets
-            uint8_t fifo_status;
-            register_map_read_register(&device->register_map, 0x17, &fifo_status, 1);
-            bool rx_empty = (fifo_status & 0b00000001);
-            if (rx_empty) {
-                // Clear RX_DR
-                uint8_t cleared = 0b01000000;
-                register_map_write_register(&device->register_map, 0x07, &cleared, 1);
+            bool packets_left = true;
+            while (packets_left) {
+                // Read the payload
+                gpio_put(device->csn, 0);
+                uint8_t cmd = 0b01100001;
+                spi_write_blocking(device->spi, &cmd, 1);
+                uint8_t bytes[32];
+                spi_read_blocking(device->spi, 0xFF, bytes, 32);
+                gpio_put(device->csn, 1);
+
+                value[count] = bytes[0];
+                count++;
+                if (count == 3) {
+                    return;
+                }
+
+                // Check RX_EMPTY to see if there are more packets
+                uint8_t fifo_status;
+                register_map_read_register(&device->register_map, 0x17, &fifo_status, 1);
+                bool rx_empty = (fifo_status & 0b00000001);
+                packets_left = !rx_empty;
             }
-
-            printf("Byte 0, 31: 0x%02X, 0x%02X\n", bytes[0], bytes[31]);
         }
     }
 }
