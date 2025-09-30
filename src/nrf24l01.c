@@ -108,10 +108,9 @@ void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
         spi_write_blocking(device->spi, value[i], 32);
         gpio_put(device->csn, 1);
 
-        // Enable TX mode
+        // Start the transmission
         gpio_put(device->ce, 1);
-        sleep_us(15); // 10 + 130
-        // Disable TX mode
+        sleep_us(15);
         gpio_put(device->ce, 0);
 
         // Wait for either TX_DS or MAX_RT
@@ -132,16 +131,15 @@ void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
                 uint8_t cleared = 0b00010000;
                 register_map_write_register(&device->register_map, 0x07, &cleared, 1);
 
-                // Resend the packet
+                // Rewrite the payload
                 gpio_put(device->csn, 0);
                 uint8_t cmd = 0b11100011;
                 spi_write_blocking(device->spi, &cmd, 1);
                 gpio_put(device->csn, 1);
 
-                // Enable TX mode
+                // Start the transmission
                 gpio_put(device->ce, 1);
                 sleep_us(15); // 10 + 130
-                // Disable TX mode
                 gpio_put(device->ce, 0);
             }
         }
