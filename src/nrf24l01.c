@@ -14,10 +14,10 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
     // Initialize SPI
     if (device->spi == spi0 && !initialized_spi0) {
         initialized_spi0 = true;
-        spi_init(device->spi, 1000000);
+        spi_init(device->spi, 4000000);
     } else if (device->spi == spi1 && !initialized_spi1) {
         initialized_spi1 = true;
-        spi_init(device->spi, 1000000);
+        spi_init(device->spi, 4000000);
     }
 
     // Initialize the device struct
@@ -221,11 +221,12 @@ void nrf24l01_receive_packet(nrf24l01 *device, uint8_t *value) {
                 spi_read_blocking(device->spi, 0xFF, bytes, 32);
                 gpio_put(device->csn, 1);
 
-                value[count] = bytes[0];
+                // value[count] = bytes[0];
+                // printf("Packet first byte: 0x%02X\n", bytes[0]);
                 count++;
-                if (count == 3) {
-                    return;
-                }
+                // if (count == 1000) {
+                //     return;
+                // }
 
                 // Check RX_EMPTY to see if there are more packets
                 uint8_t fifo_status;

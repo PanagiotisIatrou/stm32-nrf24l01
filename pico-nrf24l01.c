@@ -3,6 +3,8 @@
 #include "pico/multicore.h"
 
 #include "src/nrf24l01.h"
+#include <stdlib.h>
+#include <string.h>
 
 void rx() {
     nrf24l01 device;
@@ -35,11 +37,8 @@ void rx() {
     // Enable RX device
     nrf24l01_start_listening(&device);
 
-    for (int i = 0; i < 1000; i++) {
-        uint8_t received[3];
-        nrf24l01_receive_packet(&device, received);
-        printf("Received %d: 0x%02X, 0x%02X, 0x%02X\n", i, received[0], received[1], received[2]);
-    }
+    uint8_t received[3];
+    nrf24l01_receive_packet(&device, received);
 
     // Disable RX device
     nrf24l01_stop_listening(&device);
@@ -94,11 +93,32 @@ void tx() {
         0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3,
         0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3
     };
-    uint8_t *payload[3] = { packet0, packet1, packet2 };
-    for (int i = 0; i < 1000; i++) {
-        // printf("\n======== Sending packets %d =======\n", i);
-        nrf24l01_send_packets_fast(&device, payload, 3);
+    uint8_t *payload[5000];
+
+    for (size_t i = 0; i < 5000; i++) {
+        payload[i] = malloc(32);
+        if (!payload[i]) {
+            printf("Malloc failed at index %zu\n", i);
+            // Free previously allocated packets
+            for (size_t j = 0; j < i; j++) free(payload[j]);
+            return;
+        }
+        // Round-robin fill
+        switch (i % 3) {
+            case 0: memcpy(payload[i], packet0, 32); break;
+            case 1: memcpy(payload[i], packet1, 32); break;
+            case 2: memcpy(payload[i], packet2, 32); break;
+        }
     }
+    printf("Starting transmission of 5000 packets...\n");
+
+    uint64_t start_time = time_us_64();
+
+    nrf24l01_send_packets_fast(&device, payload, 5000);
+
+    uint64_t end_time = time_us_64();
+    uint64_t elapsed_time_us = end_time - start_time;
+    printf("Execution time: %llu microseconds\n", elapsed_time_us);
 }
 
 int main()
