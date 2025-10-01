@@ -35,13 +35,13 @@ void rx() {
     gpio_put(device.csn, 1);
 
     // Enable RX device
-    nrf24l01_start_listening(&device);
+    // nrf24l01_start_listening(&device);
 
     uint8_t received[3];
     nrf24l01_receive_packet(&device, received);
 
     // Disable RX device
-    nrf24l01_stop_listening(&device);
+    // nrf24l01_stop_listening(&device);
 }
 
 void tx() {
@@ -94,27 +94,18 @@ void tx() {
         0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3, 0xC3
     };
     uint8_t *payload[5000];
-
     for (size_t i = 0; i < 5000; i++) {
-        payload[i] = malloc(32);
-        if (!payload[i]) {
-            printf("Malloc failed at index %zu\n", i);
-            // Free previously allocated packets
-            for (size_t j = 0; j < i; j++) free(payload[j]);
-            return;
-        }
-        // Round-robin fill
         switch (i % 3) {
-            case 0: memcpy(payload[i], packet0, 32); break;
-            case 1: memcpy(payload[i], packet1, 32); break;
-            case 2: memcpy(payload[i], packet2, 32); break;
+            case 0: payload[i] = packet0; break;
+            case 1: payload[i] = packet1; break;
+            case 2: payload[i] = packet2; break;
         }
     }
     printf("Starting transmission of 5000 packets...\n");
 
     uint64_t start_time = time_us_64();
 
-    nrf24l01_send_packets_fast(&device, payload, 5000);
+    nrf24l01_send_packets(&device, payload, 5000);
 
     uint64_t end_time = time_us_64();
     uint64_t elapsed_time_us = end_time - start_time;
