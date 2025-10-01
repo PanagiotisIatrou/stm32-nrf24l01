@@ -137,6 +137,29 @@ void nrf24l01_set_data_rate(nrf24l01 *device, DataRate data_rate) {
     register_map_write_register(&device->register_map, 0x06, &rf_setup, 1);
 }
 
+void nrf24l01_set_power_level(nrf24l01 *device, PowerLevel power_level) {
+    // Read RF_SETUP
+    uint8_t rf_setup;
+    register_map_read_register(&device->register_map, 0x06, &rf_setup, 1);
+
+    // Edit the register
+    bool msb = power_level == POWER_LEVEL_HIGH || power_level == POWER_LEVEL_VERY_HIGH;
+    bool lsb = power_level == POWER_LEVEL_MEDIUM || power_level == POWER_LEVEL_VERY_HIGH;
+    if (msb) {
+        rf_setup |= 0b00000100;
+    } else {
+        rf_setup &= 0b11111011;
+    }
+    if (lsb) {
+        rf_setup |= 0b00000010;
+    } else {
+        rf_setup &= 0b11111101;
+    }
+    
+    // Write RF_SETUP
+    register_map_write_register(&device->register_map, 0x06, &rf_setup, 1);
+}
+
 void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
     // Send the packets
     for (int i = 0; i < count; i++) {

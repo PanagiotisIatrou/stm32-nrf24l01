@@ -9,6 +9,13 @@ typedef enum {
     DATA_RATE_HIGH,
 } DataRate;
 
+typedef enum {
+    POWER_LEVEL_LOW,
+    POWER_LEVEL_MEDIUM,
+    POWER_LEVEL_HIGH,
+    POWER_LEVEL_VERY_HIGH,
+} PowerLevel;
+
 typedef struct nrf24l01 {
     uint8_t mosi;
     uint8_t miso;
@@ -32,6 +39,8 @@ void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value);
 void nrf24l01_set_channel(nrf24l01 *device, uint8_t channel);
 
 void nrf24l01_set_data_rate(nrf24l01 *device, DataRate data_rate);
+
+void nrf24l01_set_power_level(nrf24l01 *device, PowerLevel power_level);
 
 void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count);
 
