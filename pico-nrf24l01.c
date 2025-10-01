@@ -12,6 +12,8 @@ void rx() {
         printf("Could not initialize RX device\n");
     }
 
+    nrf24l01_set_channel(&device, 32);
+
     // Configure as RX
     uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
     nrf24l01_config_rx(&device, address);
@@ -28,6 +30,8 @@ void tx() {
     if (!nrf24l01_init(&device, 19, 16, 18, 27, 26)) {
         printf("Could not initialize TX device\n");
     }
+
+    nrf24l01_set_channel(&device, 32);
 
     // Configure as TX
     uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };

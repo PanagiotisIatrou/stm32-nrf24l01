@@ -105,6 +105,15 @@ void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value) {
     register_map_write_register(&device->register_map, 0x12, &len, 1);
 }
 
+void nrf24l01_set_channel(nrf24l01 *device, uint8_t channel) {
+    if (channel > 125) {
+        printf("Valid channel range: [0, 125]. Given is %d\n", channel);
+        return;
+    }
+
+    register_map_write_register(&device->register_map, 0x05, &channel, 1);
+}
+
 void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
     // Send the packets
     for (int i = 0; i < count; i++) {
