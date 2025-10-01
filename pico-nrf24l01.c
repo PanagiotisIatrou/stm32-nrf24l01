@@ -105,7 +105,7 @@ void tx() {
 
     uint64_t start_time = time_us_64();
 
-    nrf24l01_send_packets(&device, payload, 5000);
+    nrf24l01_send_packets_no_ack_fast(&device, payload, 5000);
 
     uint64_t end_time = time_us_64();
     uint64_t elapsed_time_us = end_time - start_time;

@@ -208,6 +208,97 @@ void nrf24l01_send_packets_fast(nrf24l01 *device, uint8_t **value, int count) {
     gpio_put(device->ce, 0);
 }
 
+void nrf24l01_send_packets_no_ack(nrf24l01 *device, uint8_t **value, int count) {
+    // Clear any leftover packets
+    gpio_put(device->csn, 0);
+    uint8_t cmd = 0b11100001; // FLUSH_TX
+    spi_write_blocking(device->spi, &cmd, 1);
+    gpio_put(device->csn, 1);
+
+    // Send the packets
+    for (int i = 0; i < count; i++) {
+        // Write the payload
+        gpio_put(device->csn, 0);
+        uint8_t cmd = 0b10110000;
+        uint8_t buffer[1 + 32];
+        buffer[0] = cmd;
+        memcpy(&buffer[1], value[i], 32);
+        spi_write_blocking(device->spi, buffer, 33);
+        gpio_put(device->csn, 1);
+
+        // Start the transmission
+        gpio_put(device->ce, 1);
+        sleep_us(15);
+        gpio_put(device->ce, 0);
+
+        // Wait for TX_DS
+        while (true) {
+            uint8_t status;
+            register_map_read_register(&device->register_map, 0x07, &status, 1);
+            bool tx_ds = (status & 0b00100000) >> 5;
+            if (tx_ds) {
+                // Clear TX_DS
+                uint8_t cleared = 0b00100000;
+                register_map_write_register(&device->register_map, 0x07, &cleared, 1);
+                break;
+            }
+        }
+    }
+}
+
+void nrf24l01_send_packets_no_ack_fast(nrf24l01 *device, uint8_t **value, int count) {
+    // Clear any leftover packets
+    gpio_put(device->csn, 0);
+    uint8_t cmd = 0b11100001; // FLUSH_TX
+    spi_write_blocking(device->spi, &cmd, 1);
+    gpio_put(device->csn, 1);
+
+    // Preload the FIFO clamp
+    int preload_count = (count > 3 ? 3 : count);
+    for (int i = 0; i < preload_count; i++) {
+        // Write the payload
+        gpio_put(device->csn, 0);
+        uint8_t cmd = 0b10110000;
+        uint8_t buffer[1 + 32];
+        buffer[0] = cmd;
+        memcpy(&buffer[1], value[i], 32);
+        spi_write_blocking(device->spi, buffer, 33);
+        gpio_put(device->csn, 1);
+    }
+
+
+    // Send the packets
+    gpio_put(device->ce, 1);
+    for (int i = 0; i < count; i++) {
+        // Wait for TX_DS
+        while (true) {
+            uint8_t status;
+            register_map_read_register(&device->register_map, 0x07, &status, 1);
+            bool tx_ds = (status & 0b00100000) >> 5;
+            if (tx_ds) {
+                // Clear TX_DS
+                uint8_t cleared = 0b00100000;
+                register_map_write_register(&device->register_map, 0x07, &cleared, 1);
+
+                if (i + preload_count < count) {
+                    // Write the payload
+                    gpio_put(device->csn, 0);
+                    uint8_t cmd = 0b10110000;
+                    uint8_t buffer[1 + 32];
+                    buffer[0] = cmd;
+                    memcpy(&buffer[1], value[i + preload_count], 32);
+                    spi_write_blocking(device->spi, buffer, 33);
+                    gpio_put(device->csn, 1);
+                }
+
+                break;
+            }
+        }
+    }
+
+    gpio_put(device->ce, 0);
+}
+
 void nrf24l01_receive_packet(nrf24l01 *device, uint8_t *value) {
     gpio_put(device->ce, 1);
     sleep_us(130);
@@ -240,9 +331,9 @@ void nrf24l01_receive_packet(nrf24l01 *device, uint8_t *value) {
             value[count % 3] = bytes[0];
             count++;
             if (count % 3 == 0) {
-                if (value[0] != 0xA1 || value[1] != 0xB2 || value[2] != 0xC3) {
-                    printf("Packet error at count %d: 0x%02X 0x%02X 0x%02X\n", count, value[0], value[1], value[2]);
-                }
+                // if (value[0] != 0xA1 || value[1] != 0xB2 || value[2] != 0xC3) {
+                //     printf("Packet error at count %d: 0x%02X 0x%02X 0x%02X\n", count, value[0], value[1], value[2]);
+                // }
                 // printf("%d | 3 Packets first byte: 0x%02X 0x%02X 0x%02X\n", count, value[0], value[1], value[2]);
             }
             // if (count == 1000) {
