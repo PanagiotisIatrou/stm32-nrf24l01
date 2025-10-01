@@ -14,6 +14,8 @@ void rx() {
 
     nrf24l01_set_channel(&device, 32);
 
+    nrf24l01_set_data_rate(&device, DATA_RATE_HIGH);
+
     // Configure as RX
     uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
     nrf24l01_config_rx(&device, address);
@@ -32,6 +34,8 @@ void tx() {
     }
 
     nrf24l01_set_channel(&device, 32);
+
+    nrf24l01_set_data_rate(&device, DATA_RATE_HIGH);
 
     // Configure as TX
     uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };

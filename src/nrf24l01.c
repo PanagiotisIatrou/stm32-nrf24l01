@@ -114,6 +114,29 @@ void nrf24l01_set_channel(nrf24l01 *device, uint8_t channel) {
     register_map_write_register(&device->register_map, 0x05, &channel, 1);
 }
 
+void nrf24l01_set_data_rate(nrf24l01 *device, DataRate data_rate) {
+    // Read RF_SETUP
+    uint8_t rf_setup;
+    register_map_read_register(&device->register_map, 0x06, &rf_setup, 1);
+
+    // Edit the register
+    bool rf_dr_low = data_rate == DATA_RATE_LOW;
+    bool rf_dr_high = data_rate == DATA_RATE_HIGH;
+    if (rf_dr_low) {
+        rf_setup |= 0b00100000;
+    } else {
+        rf_setup &= 0b11011111;
+    }
+    if (rf_dr_high) {
+        rf_setup |= 0b00001000;
+    } else {
+        rf_setup &= 0b11110111;
+    }
+
+    // Write RF_SETUP
+    register_map_write_register(&device->register_map, 0x06, &rf_setup, 1);
+}
+
 void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
     // Send the packets
     for (int i = 0; i < count; i++) {

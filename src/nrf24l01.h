@@ -3,6 +3,12 @@
 #include "hardware/spi.h"
 #include "register_map.h"
 
+typedef enum {
+    DATA_RATE_LOW,
+    DATA_RATE_MEDIUM,
+    DATA_RATE_HIGH,
+} DataRate;
+
 typedef struct nrf24l01 {
     uint8_t mosi;
     uint8_t miso;
@@ -24,6 +30,8 @@ void nrf24l01_config_tx(nrf24l01 *device, uint8_t *value);
 void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value);
 
 void nrf24l01_set_channel(nrf24l01 *device, uint8_t channel);
+
+void nrf24l01_set_data_rate(nrf24l01 *device, DataRate data_rate);
 
 void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count);
 
