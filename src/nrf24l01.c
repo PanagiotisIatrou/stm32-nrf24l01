@@ -357,12 +357,3 @@ void nrf24l01_receive_packet(nrf24l01 *device, uint8_t *value) {
     }
     gpio_put(device->ce, 0);
 }
-
-void nrf24l01_start_listening(nrf24l01 *device) {
-    gpio_put(device->ce, 1);
-    sleep_us(130);
-}
-
-void nrf24l01_stop_listening(nrf24l01 *device) {
-    gpio_put(device->ce, 0);
-}
