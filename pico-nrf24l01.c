@@ -12,9 +12,6 @@ void rx() {
         printf("Could not initialize RX device\n");
     }
 
-    // Power up the device
-    nrf24l01_power_up(&device);
-
     // Configure device as RX
     nrf24l01_set_as_primary_rx(&device);
 
@@ -52,9 +49,6 @@ void tx() {
     if (!nrf24l01_init(&device, 19, 16, 18, 27, 26)) {
         printf("Could not initialize TX device\n");
     }
-
-    // Power up the device
-    nrf24l01_power_up(&device);
 
     // Configure device as TX
     nrf24l01_set_as_primary_tx(&device);

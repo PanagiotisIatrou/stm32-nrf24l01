@@ -46,15 +46,9 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
     // Initialize the register map
     register_map_init(&device->register_map, device->csn, device->spi);
 
-    return true;
-}
-
-void nrf24l01_power_up(nrf24l01 *device) {
-    // Read the config register
+    // Power up the device
     uint8_t config;
     register_map_read_register(&device->register_map, 0x00, &config, 1);
-
-    // Edit the config byte and write it
     config |= 0b00000010;
     register_map_write_register(&device->register_map, 0x00, &config, 1);
 
@@ -66,6 +60,8 @@ void nrf24l01_power_up(nrf24l01 *device) {
     register_map_read_register(&device->register_map, 0x1D, &feature, 1);
     feature |= 0b00000001;
     register_map_write_register(&device->register_map, 0x1D, &feature, 1);
+
+    return true;
 }
 
 void nrf24l01_set_as_primary_tx(nrf24l01 *device) {
