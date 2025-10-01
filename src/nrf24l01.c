@@ -76,27 +76,13 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
     return true;
 }
 
-void nrf24l01_set_as_primary_tx(nrf24l01 *device) {
-    // Read the config register
+void nrf24l01_config_tx(nrf24l01 *device, uint8_t *value) {
+    // Set as primary TX
     uint8_t config;
     register_map_read_register(&device->register_map, 0x00, &config, 1);
-
-    // Edit the config byte and write it
     config &= 0b11111110;
     register_map_write_register(&device->register_map, 0x00, &config, 1);
-}
-
-void nrf24l01_set_as_primary_rx(nrf24l01 *device) {
-    // Read the config register
-    uint8_t config;
-    register_map_read_register(&device->register_map, 0x00, &config, 1);
-
-    // Edit the config byte and write it
-    config |= 0b00000001;
-    register_map_write_register(&device->register_map, 0x00, &config, 1);
-}
-
-void nrf24l01_config_tx(nrf24l01 *device, uint8_t *value) {
+    
     // Write TX_ADDR
     register_map_write_register(&device->register_map, 0x10, value, 5);
 
@@ -105,6 +91,12 @@ void nrf24l01_config_tx(nrf24l01 *device, uint8_t *value) {
 }
 
 void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value) {
+    // Set as primary RX
+    uint8_t config;
+    register_map_read_register(&device->register_map, 0x00, &config, 1);
+    config |= 0b00000001;
+    register_map_write_register(&device->register_map, 0x00, &config, 1);
+
     // Write RX_ADDR_P1
     register_map_write_register(&device->register_map, 0x0B, value, 5);
 
