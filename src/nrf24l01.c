@@ -60,6 +60,12 @@ void nrf24l01_power_up(nrf24l01 *device) {
 
     // Wait for the Tpd2stby delay
     sleep_us(5000);
+
+    // Set EN_DYN_ACK to allow NO ACK packets
+    uint8_t feature;
+    register_map_read_register(&device->register_map, 0x1D, &feature, 1);
+    feature |= 0b00000001;
+    register_map_write_register(&device->register_map, 0x1D, &feature, 1);
 }
 
 void nrf24l01_set_as_primary_tx(nrf24l01 *device) {
@@ -243,7 +249,7 @@ void nrf24l01_receive_packet(nrf24l01 *device, uint8_t *value) {
             //     return;
             // }
 
-            // Check RX_P_NO to see if there are more packets
+            // Check RX_EMPTY to see if there are more packets
             uint8_t fifo_status;
             register_map_read_register(&device->register_map, 0x17, &fifo_status, 1);
             uint8_t fifo_empty = fifo_status & 0b00000001;
