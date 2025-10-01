@@ -61,6 +61,18 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
     feature |= 0b00000001;
     register_map_write_register(&device->register_map, 0x1D, &feature, 1);
 
+    // Flush TX FIFO
+    gpio_put(device->csn, 0);
+    uint8_t cmd = 0b11100001;
+    spi_write_blocking(device->spi, &cmd, 1);
+    gpio_put(device->csn, 1);
+
+    // Flush RX FIFO
+    gpio_put(device->csn, 0);
+    cmd = 0b11100010;
+    spi_write_blocking(device->spi, &cmd, 1);
+    gpio_put(device->csn, 1);
+
     return true;
 }
 

@@ -19,26 +19,8 @@ void rx() {
     uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
     nrf24l01_config_rx(&device, address);
 
-    // Flush TX FIFO
-    gpio_put(device.csn, 0);
-    uint8_t cmd = 0b11100001;
-    spi_write_blocking(device.spi, &cmd, 1);
-    gpio_put(device.csn, 1);
-
-    // Flush RX FIFO
-    gpio_put(device.csn, 0);
-    cmd = 0b11100010;
-    spi_write_blocking(device.spi, &cmd, 1);
-    gpio_put(device.csn, 1);
-
-    // Enable RX device
-    // nrf24l01_start_listening(&device);
-
     uint8_t received[3];
     nrf24l01_receive_packet(&device, received);
-
-    // Disable RX device
-    // nrf24l01_stop_listening(&device);
 }
 
 void tx() {
@@ -56,18 +38,6 @@ void tx() {
     // Configure TX
     uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
     nrf24l01_config_tx(&device, address);
-
-    // Flush TX FIFO
-    gpio_put(device.csn, 0);
-    uint8_t cmd = 0b11100001;
-    spi_write_blocking(device.spi, &cmd, 1);
-    gpio_put(device.csn, 1);
-
-    // Flush RX FIFO
-    gpio_put(device.csn, 0);
-    cmd = 0b11100010;
-    spi_write_blocking(device.spi, &cmd, 1);
-    gpio_put(device.csn, 1);
 
     uint8_t packet0[32] = {
         0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1, 0xA1,
