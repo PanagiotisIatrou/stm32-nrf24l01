@@ -3,4 +3,4 @@ Raspberry Pi Pico C library for the nrf24l01 wireless RF transceiver
 
 ## Resources
 
-- [nRF24L01 Single Chip 2.4GHz Transceiver Product Specification](https://cdn.sparkfun.com/datasheets/Wireless/Nordic/nRF24L01_Product_Specification_v2_0.pdf)
+- [nRF24L01+ Product Specification v1.0](https://docs.nordicsemi.com/bundle/nRF24L01P_PS_v1.0/resource/nRF24L01P_PS_v1.0.pdf)
