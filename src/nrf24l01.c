@@ -193,6 +193,26 @@ void nrf24l01_set_data_rate(nrf24l01 *device, DataRate data_rate) {
     register_map_write_register(&device->register_map, 0x06, &rf_setup, 1);
 }
 
+PowerLevel nrf24l01_get_power_level(nrf24l01 *device) {
+    // Read RF_SETUP
+    uint8_t rf_setup;
+    register_map_read_register(&device->register_map, 0x06, &rf_setup, 1);
+
+    // Extract RF_PWR
+    uint8_t rf_pwr = (rf_setup & 0b00000110) >> 1;
+
+    // Figure out PowerLevel
+    if (rf_pwr == 0) {
+        return POWER_LEVEL_LOW;
+    } else if (rf_pwr == 1) {
+        return POWER_LEVEL_MEDIUM;
+    } else if (rf_pwr == 2) {
+        return POWER_LEVEL_HIGH;
+    } else {
+        return POWER_LEVEL_VERY_HIGH;
+    }
+}
+
 void nrf24l01_set_power_level(nrf24l01 *device, PowerLevel power_level) {
     // Read RF_SETUP
     uint8_t rf_setup;
