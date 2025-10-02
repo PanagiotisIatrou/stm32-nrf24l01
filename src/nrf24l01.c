@@ -354,9 +354,11 @@ void nrf24l01_send_packets_no_ack_fast(nrf24l01 *device, uint8_t **value, int co
     gpio_put(device->ce, 0);
 }
 
-void nrf24l01_receive_packet(nrf24l01 *device, uint8_t *value) {
+void nrf24l01_receive_packet(nrf24l01 *device) {
     gpio_put(device->ce, 1);
     sleep_us(130);
+
+    uint64_t last_packet_time = time_us_64();
 
     int count = 0;
     while (true) {
@@ -366,11 +368,16 @@ void nrf24l01_receive_packet(nrf24l01 *device, uint8_t *value) {
         bool rx_dr = (status & 0b01000000) >> 6;
 
         if (!rx_dr) {
+            if (time_us_64() - last_packet_time > 5000000) {
+                printf("Packet receive timeout after %d packets\n", count);
+                break;
+            }
             continue;
         }
 
         bool packets_left = true;
         while (packets_left) {
+            last_packet_time = time_us_64();
             // Read the payload
             gpio_put(device->csn, 0);
             uint8_t cmd = 0b01100001;
@@ -383,17 +390,17 @@ void nrf24l01_receive_packet(nrf24l01 *device, uint8_t *value) {
             uint8_t cleared = 0b01000000;
             register_map_write_register(&device->register_map, 0x07, &cleared, 1);
 
-            value[count % 3] = bytes[0];
-            count++;
-            if (count % 3 == 0) {
-                // if (value[0] != 0xA1 || value[1] != 0xB2 || value[2] != 0xC3) {
-                //     printf("Packet error at count %d: 0x%02X 0x%02X 0x%02X\n", count, value[0], value[1], value[2]);
-                // }
-                // printf("%d | 3 Packets first byte: 0x%02X 0x%02X 0x%02X\n", count, value[0], value[1], value[2]);
+            if (count % 3 == 0 && bytes[0] != 0xA1
+                || count % 3 == 1 && bytes[0] != 0xB2
+                || count % 3 == 2 && bytes[0] != 0xC3) {
+                printf("Packet error at count %d: 0x%02X\n", count, bytes[0]);
             }
-            // if (count == 1000) {
-            //     return;
-            // }
+            count++;
+
+            if (count == 5000) {
+                printf("Received 5000 packets\n");
+                return;
+            }
 
             // Check RX_EMPTY to see if there are more packets
             uint8_t fifo_status;

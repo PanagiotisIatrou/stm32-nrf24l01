@@ -22,8 +22,7 @@ void rx() {
     uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
     nrf24l01_config_rx(&device, address);
 
-    uint8_t received[3];
-    nrf24l01_receive_packet(&device, received);
+    nrf24l01_receive_packet(&device);
 }
 
 void tx() {
@@ -75,7 +74,7 @@ void tx() {
 
     uint64_t start_time = time_us_64();
 
-    nrf24l01_send_packets_no_ack_fast(&device, payload, 5000);
+    nrf24l01_send_packets_fast(&device, payload, 5000);
 
     uint64_t end_time = time_us_64();
     uint64_t elapsed_time_us = end_time - start_time;
