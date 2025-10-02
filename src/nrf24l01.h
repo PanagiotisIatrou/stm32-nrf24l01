@@ -54,6 +54,8 @@ PowerLevel nrf24l01_get_power_level(nrf24l01 *device);
 
 void nrf24l01_set_power_level(nrf24l01 *device, PowerLevel power_level);
 
+uint8_t nrf24l01_get_retransmit_delay(nrf24l01 *device);
+
 void nrf24l01_set_retransmit_delay(nrf24l01 *device, uint8_t delay);
 
 void nrf24l01_set_retransmit_count(nrf24l01 *device, uint8_t count);
