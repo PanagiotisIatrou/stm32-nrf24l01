@@ -58,6 +58,8 @@ uint8_t nrf24l01_get_retransmit_delay(nrf24l01 *device);
 
 void nrf24l01_set_retransmit_delay(nrf24l01 *device, uint8_t delay);
 
+uint8_t nrf24l01_get_retransmit_count(nrf24l01 *device);
+
 void nrf24l01_set_retransmit_count(nrf24l01 *device, uint8_t count);
 
 void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count);
