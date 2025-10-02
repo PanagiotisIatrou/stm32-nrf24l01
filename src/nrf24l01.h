@@ -42,7 +42,7 @@ void nrf24l01_config_tx(nrf24l01 *device, uint8_t *value);
 
 void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value);
 
-uint8_t nrf24l01_get_channel(nrf24l01 *device, uint8_t channel);
+uint8_t nrf24l01_get_channel(nrf24l01 *device);
 
 void nrf24l01_set_channel(nrf24l01 *device, uint8_t channel);
 
