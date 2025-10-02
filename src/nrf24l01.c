@@ -142,7 +142,13 @@ void nrf24l01_set_channel(nrf24l01 *device, uint8_t channel) {
         return;
     }
 
-    register_map_write_register(&device->register_map, 0x05, &channel, 1);
+    // Read RF_CH
+    uint8_t rf_ch;
+    register_map_read_register(&device->register_map, 0x05, &rf_ch, 1);
+
+    // Write RF_CH
+    rf_ch = (rf_ch & 0b10000000) | channel;
+    register_map_write_register(&device->register_map, 0x05, &rf_ch, 1);
 }
 
 void nrf24l01_set_data_rate(nrf24l01 *device, DataRate data_rate) {
