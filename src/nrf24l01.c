@@ -160,6 +160,23 @@ void nrf24l01_set_power_level(nrf24l01 *device, PowerLevel power_level) {
     register_map_write_register(&device->register_map, 0x06, &rf_setup, 1);
 }
 
+void nrf24l01_set_retransmit_delay(nrf24l01 *device, uint8_t delay) {
+    if (delay > 15) {
+        printf("Valid retransmit delay range: [0, 15]. Given is %d\n", delay);
+        return;
+    }
+
+    // Read SETUP_RETR
+    uint8_t setup_retr;
+    register_map_read_register(&device->register_map, 0x04, &setup_retr, 1);
+
+    // Edit the register
+    setup_retr = (setup_retr & 0x0F) | (delay << 4);
+
+    // Write SETUP_RETR
+    register_map_write_register(&device->register_map, 0x04, &setup_retr, 1);
+}
+
 void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
     // Send the packets
     for (int i = 0; i < count; i++) {
