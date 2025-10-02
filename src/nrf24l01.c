@@ -127,6 +127,15 @@ void nrf24l01_config_rx(nrf24l01 *device, uint8_t *value) {
     register_map_write_register(&device->register_map, 0x12, &len, 1);
 }
 
+uint8_t nrf24l01_get_channel(nrf24l01 *device, uint8_t channel) {
+    // Read RF_CH
+    uint8_t rf_ch;
+    register_map_read_register(&device->register_map, 0x05, &rf_ch, 1);
+
+    // Extract the channel bits
+    return (rf_ch & 0b01111111);
+}
+
 void nrf24l01_set_channel(nrf24l01 *device, uint8_t channel) {
     if (channel > 125) {
         printf("Valid channel range: [0, 125]. Given is %d\n", channel);
