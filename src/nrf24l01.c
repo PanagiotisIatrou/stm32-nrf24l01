@@ -67,6 +67,15 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
     return true;
 }
 
+bool nrf24l01_get_power_state(nrf24l01 *device) {
+    // Read CONFIG
+    uint8_t config;
+    register_map_read_register(&device->register_map, 0x00, &config, 1);
+
+    // Extract PWR_UP bit
+    return ((config & 0b00000010) >> 1);
+}
+
 void nrf24l01_power_up(nrf24l01 *device) {
     // Write PWR_UP = 1 to the config register
     uint8_t config;

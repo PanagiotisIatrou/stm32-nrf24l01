@@ -32,6 +32,8 @@ static bool initialized_spi1 = false;
 
 bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, uint8_t csn, uint8_t ce);
 
+bool nrf24l01_get_power_state(nrf24l01 *device);
+
 void nrf24l01_power_up(nrf24l01 *device);
 
 void nrf24l01_power_down(nrf24l01 *device);
