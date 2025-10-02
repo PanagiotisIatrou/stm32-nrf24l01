@@ -12,6 +12,8 @@ void rx() {
         printf("Could not initialize RX device\n");
     }
 
+    nrf24l01_power_up(&device);
+
     nrf24l01_set_channel(&device, 32);
 
     nrf24l01_set_data_rate(&device, DATA_RATE_HIGH);
@@ -33,6 +35,8 @@ void tx() {
     if (!nrf24l01_init(&device, 19, 16, 18, 27, 26)) {
         printf("Could not initialize TX device\n");
     }
+
+    nrf24l01_power_up(&device);
 
     nrf24l01_set_channel(&device, 32);
 

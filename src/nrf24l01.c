@@ -46,15 +46,6 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
     // Initialize the register map
     register_map_init(&device->register_map, device->csn, device->spi);
 
-    // Power up the device
-    uint8_t config;
-    register_map_read_register(&device->register_map, 0x00, &config, 1);
-    config |= 0b00000010;
-    register_map_write_register(&device->register_map, 0x00, &config, 1);
-
-    // Wait for the Tpd2stby delay
-    sleep_us(5000);
-
     // Set EN_DYN_ACK to allow NO ACK packets
     uint8_t feature;
     register_map_read_register(&device->register_map, 0x1D, &feature, 1);
@@ -74,6 +65,28 @@ bool nrf24l01_init(nrf24l01 *device, uint8_t mosi, uint8_t miso, uint8_t sck, ui
     gpio_put(device->csn, 1);
 
     return true;
+}
+
+void nrf24l01_power_up(nrf24l01 *device) {
+    // Write PWR_UP = 1 to the config register
+    uint8_t config;
+    register_map_read_register(&device->register_map, 0x00, &config, 1);
+    config |= 0b00000010;
+    register_map_write_register(&device->register_map, 0x00, &config, 1);
+
+    // Wait for the Tpd2stby delay
+    sleep_us(5000);
+}
+
+void nrf24l01_power_down(nrf24l01 *device) {
+    // Write PWR_UP = 0 to the config register
+    uint8_t config;
+    register_map_read_register(&device->register_map, 0x00, &config, 1);
+    config &= 0b11111101;
+    register_map_write_register(&device->register_map, 0x00, &config, 1);
+
+    // Wait for the Tpd2stby delay
+    sleep_us(5000);
 }
 
 void nrf24l01_config_tx(nrf24l01 *device, uint8_t *value) {
