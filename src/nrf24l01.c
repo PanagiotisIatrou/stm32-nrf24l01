@@ -177,6 +177,23 @@ void nrf24l01_set_retransmit_delay(nrf24l01 *device, uint8_t delay) {
     register_map_write_register(&device->register_map, 0x04, &setup_retr, 1);
 }
 
+void nrf24l01_set_retransmit_count(nrf24l01 *device, uint8_t count) {
+    if (count > 15) {
+        printf("Valid retransmit count range: [0, 15]. Given is %d\n", count);
+        return;
+    }
+
+    // Read SETUP_RETR
+    uint8_t setup_retr;
+    register_map_read_register(&device->register_map, 0x04, &setup_retr, 1);
+
+    // Edit the register
+    setup_retr = (setup_retr & 0xF0) | count;
+
+    // Write SETUP_RETR
+    register_map_write_register(&device->register_map, 0x04, &setup_retr, 1);
+}
+
 void nrf24l01_send_packets(nrf24l01 *device, uint8_t **value, int count) {
     // Send the packets
     for (int i = 0; i < count; i++) {
