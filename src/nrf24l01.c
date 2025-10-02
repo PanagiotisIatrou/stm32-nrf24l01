@@ -151,6 +151,25 @@ void nrf24l01_set_channel(nrf24l01 *device, uint8_t channel) {
     register_map_write_register(&device->register_map, 0x05, &rf_ch, 1);
 }
 
+DataRate nrf24l01_get_data_rate(nrf24l01 *device) {
+    // Read RF_SETUP
+    uint8_t rf_setup;
+    register_map_read_register(&device->register_map, 0x06, &rf_setup, 1);
+
+    // Extract RF_DR_LOW and RF_DR_HIGH
+    bool rf_dr_low = ((rf_setup & 0b00100000) >> 5);
+    bool rf_dr_high = ((rf_setup & 0b00001000) >> 3);
+
+    // Figure out DataRate
+    if (rf_dr_low) {
+        return DATA_RATE_LOW;
+    } else if (rf_dr_high) {
+        return DATA_RATE_HIGH;
+    } else {
+        return DATA_RATE_MEDIUM;
+    }
+}
+
 void nrf24l01_set_data_rate(nrf24l01 *device, DataRate data_rate) {
     // Read RF_SETUP
     uint8_t rf_setup;

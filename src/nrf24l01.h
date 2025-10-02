@@ -46,6 +46,8 @@ uint8_t nrf24l01_get_channel(nrf24l01 *device);
 
 void nrf24l01_set_channel(nrf24l01 *device, uint8_t channel);
 
+DataRate nrf24l01_get_data_rate(nrf24l01 *device);
+
 void nrf24l01_set_data_rate(nrf24l01 *device, DataRate data_rate);
 
 void nrf24l01_set_power_level(nrf24l01 *device, PowerLevel power_level);
