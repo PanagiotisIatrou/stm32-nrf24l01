@@ -12,6 +12,19 @@ typedef enum {
     COMMAND_CODE_W_TX_PAYLOAD_NO_ACK = 0xB0,
 } CommandCode;
 
+typedef enum {
+    REGISTER_ADDRESS_CONFIG = 0x00,
+    REGISTER_ADDRESS_SETUP_RETR = 0x04,
+    REGISTER_ADDRESS_RF_CH = 0x05,
+    REGISTER_ADDRESS_RF_SETUP = 0x06,
+    REGISTER_ADDRESS_STATUS = 0x07,
+    REGISTER_ADDRESS_RX_ADDR_P0 = 0x0A,
+    REGISTER_ADDRESS_TX_ADDR = 0x10,
+    REGISTER_ADDRESS_RX_PW_P0 = 0x11,
+    REGISTER_ADDRESS_FIFO_STATUS = 0x17,
+    REGISTER_ADDRESS_FEATURE = 0x1D,
+} RegisterAddress;
+
 typedef struct {
     spi_interface *spi_handler;
 } device_commands;
