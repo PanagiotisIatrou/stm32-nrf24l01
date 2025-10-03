@@ -7,6 +7,9 @@
 #include <string.h>
 
 void rx() {
+    // Initialize SPI1
+    spi_init(spi1, 4000000);
+
     nrf24l01 device;
     if (!nrf24l01_init(&device, 11, 12, 10, 21, 20)) {
         printf("Could not initialize RX device\n");
@@ -29,6 +32,9 @@ void rx() {
 
 void tx() {
     sleep_ms(2000);
+
+    // Initialize SPI0
+    spi_init(spi0, 4000000);
 
     // Initialize the devices
     nrf24l01 device;
@@ -94,10 +100,6 @@ int main()
     }
     sleep_ms(1000);
     printf("Starting...\n");
-
-    // Initialize SPI0
-    spi_init(spi0, 4000000);
-    spi_init(spi1, 4000000);
 
     // Wait for init
     sleep_ms(100);
