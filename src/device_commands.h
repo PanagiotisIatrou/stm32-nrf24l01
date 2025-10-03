@@ -2,6 +2,16 @@
 
 #include "spi_interface.h"
 
+typedef enum {
+    COMMAND_CODE_R_REGISTER = 0x00,
+    COMMAND_CODE_W_REGISTER = 0x20,
+    COMMAND_CODE_R_RX_PAYLOAD = 0x61,
+    COMMAND_CODE_W_TX_PAYLOAD = 0xA0,
+    COMMAND_CODE_FLUSH_TX = 0xE1,
+    COMMAND_CODE_FLUSH_RX = 0xE2,
+    COMMAND_CODE_W_TX_PAYLOAD_NO_ACK = 0xB0,
+} CommandCode;
+
 typedef struct {
     spi_interface *spi_handler;
 } device_commands;

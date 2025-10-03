@@ -5,12 +5,12 @@ void device_commands_init(device_commands *self, spi_interface *spi_handler) {
 }
 
 static void device_commands_read_register(device_commands *self, uint8_t address, uint8_t *output, uint8_t output_length) {
-    uint8_t command = 0x00 | address;
+    uint8_t command = COMMAND_CODE_R_REGISTER | address;
     spi_interface_send_command(self->spi_handler, command, NULL, 0, output, output_length);
 }
 
 static void device_commands_write_register(device_commands *self, uint8_t address, uint8_t *data, uint8_t data_length) {
-    uint8_t command = 0x20 | address;
+    uint8_t command = COMMAND_CODE_W_REGISTER | address;
     spi_interface_send_command(self->spi_handler, command, data, data_length, NULL, 0);
 }
 
@@ -29,23 +29,23 @@ void device_commands_disable_ce(device_commands *self) {
 // Commands
 
 void device_commands_flush_tx(device_commands *self) {
-    spi_interface_send_command(self->spi_handler, 0b11100001, NULL, 0, NULL, 0);
+    spi_interface_send_command(self->spi_handler, COMMAND_CODE_FLUSH_TX, NULL, 0, NULL, 0);
 }
 
 void device_commands_flush_rx(device_commands *self) {
-    spi_interface_send_command(self->spi_handler, 0b11100010, NULL, 0, NULL, 0);
+    spi_interface_send_command(self->spi_handler, COMMAND_CODE_FLUSH_RX, NULL, 0, NULL, 0);
 }
 
 void device_commands_w_tx_payload(device_commands *self, uint8_t *payload, uint payload_length) {
-    spi_interface_send_command(self->spi_handler, 0b10100000, payload, payload_length, NULL, 0);
+    spi_interface_send_command(self->spi_handler, COMMAND_CODE_W_TX_PAYLOAD, payload, payload_length, NULL, 0);
 }
 
 void device_commands_w_tx_payload_no_ack(device_commands *self, uint8_t *payload, uint payload_length) {
-    spi_interface_send_command(self->spi_handler, 0b10110000, payload, payload_length, NULL, 0);
+    spi_interface_send_command(self->spi_handler, COMMAND_CODE_W_TX_PAYLOAD_NO_ACK, payload, payload_length, NULL, 0);
 }
 
 void device_commands_r_rx_payload(device_commands *self, uint8_t *output, uint output_length) {
-    spi_interface_send_command(self->spi_handler, 0b01100001, NULL, 0, output, output_length);
+    spi_interface_send_command(self->spi_handler, COMMAND_CODE_R_RX_PAYLOAD, NULL, 0, output, output_length);
 }
 
 // Registers
