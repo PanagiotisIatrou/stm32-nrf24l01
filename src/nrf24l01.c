@@ -285,6 +285,8 @@ void nrf24l01_send_packets_no_ack_fast(nrf24l01 *self, uint8_t **value, int coun
 }
 
 void nrf24l01_receive_packet(nrf24l01 *self) {
+    device_commands_flush_rx(&self->commands_handler);
+
     spi_interface_enable_ce(&self->spi_handler);
 
     uint64_t last_packet_time = time_us_64();
