@@ -320,11 +320,6 @@ void nrf24l01_receive_packet(nrf24l01 *self) {
             }
             count++;
 
-            if (count == 5000) {
-                printf("Received 5000 packets\n");
-                return;
-            }
-
             // Check RX_EMPTY to see if there are more packets
             bool rx_empty;
             device_commands_get_rx_empty(&self->commands_handler, &rx_empty);
