@@ -9,16 +9,8 @@ bool nrf24l01_init(nrf24l01 *self, uint8_t mosi, uint8_t miso, uint8_t sck, uint
     // Check if the provided SPI pin combination is valid
     self->spi = pins_to_spi(mosi, miso, sck);
     if (self->spi == NULL) {
+        printf("Given pins do not corespond to the given SPI\n");
         return false;
-    }
-
-    // Initialize SPI
-    if (self->spi == spi0 && !initialized_spi0) {
-        initialized_spi0 = true;
-        spi_init(self->spi, 4000000);
-    } else if (self->spi == spi1 && !initialized_spi1) {
-        initialized_spi1 = true;
-        spi_init(self->spi, 4000000);
     }
 
     // Initialize the nrf24l01 struct
@@ -521,7 +513,7 @@ void nrf24l01_receive_packet(nrf24l01 *self) {
             if (count % 3 == 0 && bytes[0] != 0xA1
                 || count % 3 == 1 && bytes[0] != 0xB2
                 || count % 3 == 2 && bytes[0] != 0xC3) {
-                printf("Packet error at count %d: 0x%02X\n", count, bytes[0]);
+                // printf("Packet error at count %d: 0x%02X\n", count, bytes[0]);
             }
             count++;
 

@@ -27,9 +27,6 @@ typedef struct nrf24l01 {
     register_map register_map;
 } nrf24l01;
 
-static bool initialized_spi0 = false;
-static bool initialized_spi1 = false;
-
 bool nrf24l01_init(nrf24l01 *self, uint8_t mosi, uint8_t miso, uint8_t sck, uint8_t csn, uint8_t ce);
 
 bool nrf24l01_get_power_state(nrf24l01 *self);

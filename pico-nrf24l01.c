@@ -78,7 +78,7 @@ void tx() {
 
     uint64_t start_time = time_us_64();
 
-    nrf24l01_send_packets_fast(&device, payload, 5000);
+    nrf24l01_send_packets_no_ack_fast(&device, payload, 5000);
 
     uint64_t end_time = time_us_64();
     uint64_t elapsed_time_us = end_time - start_time;
@@ -94,6 +94,10 @@ int main()
     }
     sleep_ms(1000);
     printf("Starting...\n");
+
+    // Initialize SPI0
+    spi_init(spi0, 4000000);
+    spi_init(spi1, 4000000);
 
     // Wait for init
     sleep_ms(100);
