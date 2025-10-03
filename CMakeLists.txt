@@ -35,7 +35,12 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(pico-nrf24l01 pico-nrf24l01.c src/nrf24l01.c src/register_map.c)
+add_executable(pico-nrf24l01
+    pico-nrf24l01.c
+    src/nrf24l01.c
+    src/device_commands.c
+    src/spi_interface.c
+)
 
 pico_set_program_name(pico-nrf24l01 "pico-nrf24l01")
 pico_set_program_version(pico-nrf24l01 "0.1")
@@ -45,8 +50,12 @@ pico_enable_stdio_uart(pico-nrf24l01 0)
 pico_enable_stdio_usb(pico-nrf24l01 1)
 
 # Add the standard library to the build
-target_link_libraries(pico-nrf24l01
-        pico_stdlib hardware_spi pico_multicore)
+target_link_libraries(
+    pico-nrf24l01
+    pico_stdlib
+    hardware_spi
+    pico_multicore
+)
 
 # Add the standard include files to the build
 target_include_directories(pico-nrf24l01 PRIVATE

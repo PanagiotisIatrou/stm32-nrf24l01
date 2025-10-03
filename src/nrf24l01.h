@@ -1,7 +1,9 @@
 #pragma once
 
 #include "hardware/spi.h"
-#include "register_map.h"
+
+#include "spi_interface.h"
+#include "device_commands.h"
 
 typedef enum {
     DATA_RATE_LOW,
@@ -17,14 +19,8 @@ typedef enum {
 } PowerLevel;
 
 typedef struct nrf24l01 {
-    uint8_t mosi;
-    uint8_t miso;
-    uint8_t sck;
-    uint8_t csn;
-    uint8_t ce;
-    spi_inst_t* spi;
-
-    register_map register_map;
+    spi_interface spi_handler;
+    device_commands commands_handler;
 } nrf24l01;
 
 bool nrf24l01_init(nrf24l01 *self, uint8_t mosi, uint8_t miso, uint8_t sck, uint8_t csn, uint8_t ce);
@@ -35,9 +31,9 @@ void nrf24l01_power_up(nrf24l01 *self);
 
 void nrf24l01_power_down(nrf24l01 *self);
 
-void nrf24l01_config_tx(nrf24l01 *self, uint8_t *value);
+void nrf24l01_config_tx(nrf24l01 *self, uint8_t *address);
 
-void nrf24l01_config_rx(nrf24l01 *self, uint8_t *value);
+void nrf24l01_config_rx(nrf24l01 *self, uint8_t *address);
 
 uint8_t nrf24l01_get_channel(nrf24l01 *self);
 
