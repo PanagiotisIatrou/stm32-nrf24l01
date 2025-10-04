@@ -51,6 +51,10 @@ void device_commands_r_rx_payload(device_commands *self, uint8_t *output, uint o
 
 // Registers
 
+void device_commands_get_crco(device_commands *self, bool *value);
+
+void device_commands_set_crco(device_commands *self, bool value);
+
 void device_commands_get_pwr_up(device_commands *self, bool *value);
 
 void device_commands_set_pwr_up(device_commands *self, bool value);

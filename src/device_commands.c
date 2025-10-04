@@ -50,6 +50,19 @@ void device_commands_r_rx_payload(device_commands *self, uint8_t *output, uint o
 
 // Registers
 
+void device_commands_get_crco(device_commands *self, bool *value) {
+    uint8_t config_register;
+    device_commands_read_register(self, REGISTER_ADDRESS_CONFIG, &config_register, 1);
+    *value = (config_register & 0x04) >> 2;
+}
+
+void device_commands_set_crco(device_commands *self, bool value) {
+    uint8_t config_register;
+    device_commands_read_register(self, REGISTER_ADDRESS_CONFIG, &config_register, 1);
+    config_register = (config_register & 0xFB) | (value << 2);
+    device_commands_write_register(self, REGISTER_ADDRESS_CONFIG, &config_register, 1);
+}
+
 void device_commands_get_pwr_up(device_commands *self, bool *value) {
     uint8_t config_register;
     device_commands_read_register(self, REGISTER_ADDRESS_CONFIG, &config_register, 1);
