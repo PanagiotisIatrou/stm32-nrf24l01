@@ -312,9 +312,6 @@ void nrf24l01_receive_packet(nrf24l01 *self) {
             uint8_t bytes[32];
             device_commands_r_rx_payload(&self->commands_handler, bytes, 32);
 
-            // Clear RX_DR
-            device_commands_clear_rx_dr(&self->commands_handler);
-
             if (count % 3 == 0 && bytes[0] != 0xA1
                 || count % 3 == 1 && bytes[0] != 0xB2
                 || count % 3 == 2 && bytes[0] != 0xC3) {
@@ -327,6 +324,9 @@ void nrf24l01_receive_packet(nrf24l01 *self) {
             device_commands_get_rx_empty(&self->commands_handler, &rx_empty);
             packets_left = !rx_empty;
         }
+
+        // Clear RX_DR
+        device_commands_clear_rx_dr(&self->commands_handler);
     }
 
     spi_interface_disable_ce(&self->spi_handler);
