@@ -249,6 +249,19 @@ void device_commands_get_rx_empty(device_commands *self, bool *value) {
     *value = fifo_status_register & 0x01;
 }
 
+void device_commands_get_en_dpl(device_commands *self, bool *value) {
+    uint8_t feature_register;
+    device_commands_read_register(self, REGISTER_ADDRESS_FEATURE, &feature_register, 1);
+    *value = (feature_register & 0x04) >> 2;
+}
+
+void device_commands_set_en_dpl(device_commands *self, bool value) {
+    uint8_t feature_register;
+    device_commands_read_register(self, REGISTER_ADDRESS_FEATURE, &feature_register, 1);
+    feature_register = (feature_register & 0xFB) | value;
+    device_commands_write_register(self, REGISTER_ADDRESS_FEATURE, &feature_register, 1);
+}
+
 void device_commands_get_en_dyn_ack(device_commands *self, bool *value) {
     uint8_t feature_register;
     device_commands_read_register(self, REGISTER_ADDRESS_FEATURE, &feature_register, 1);

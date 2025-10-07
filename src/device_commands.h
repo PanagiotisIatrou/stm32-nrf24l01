@@ -116,6 +116,10 @@ void device_commands_set_rx_pw(device_commands *self, uint pipe, uint8_t value);
 
 void device_commands_get_rx_empty(device_commands *self, bool *value);
 
+void device_commands_get_en_dpl(device_commands *self, bool *value);
+
+void device_commands_set_en_dpl(device_commands *self, bool value);
+
 void device_commands_get_en_dyn_ack(device_commands *self, bool *value);
 
 void device_commands_set_en_dyn_ack(device_commands *self, bool value);
