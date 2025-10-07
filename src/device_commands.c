@@ -57,7 +57,7 @@ void device_commands_r_rx_pl_wid(device_commands *self, uint8_t *output) {
 void device_commands_get_crco(device_commands *self, bool *value) {
     uint8_t config_register;
     device_commands_read_register(self, REGISTER_ADDRESS_CONFIG, &config_register, 1);
-    *value = (config_register & 0x04) >> 2;
+    *value = (config_register >> 2) & 0x01;
 }
 
 void device_commands_set_crco(device_commands *self, bool value) {
@@ -70,7 +70,7 @@ void device_commands_set_crco(device_commands *self, bool value) {
 void device_commands_get_pwr_up(device_commands *self, bool *value) {
     uint8_t config_register;
     device_commands_read_register(self, REGISTER_ADDRESS_CONFIG, &config_register, 1);
-    *value = (config_register & 0x02) >> 1;
+    *value = (config_register >> 1) & 0x01;
 }
 
 void device_commands_set_pwr_up(device_commands *self, bool value) {
@@ -96,7 +96,7 @@ void device_commands_set_prim_rx(device_commands *self, bool value) {
 void device_commands_get_ard(device_commands *self, uint8_t *value) {
     uint8_t setup_retr_register;
     device_commands_read_register(self, REGISTER_ADDRESS_SETUP_RETR, &setup_retr_register, 1);
-    *value = (setup_retr_register & 0xF0) >> 4;
+    *value = (setup_retr_register >> 4) & 0x0F;
 }
 
 void device_commands_set_ard(device_commands *self, uint8_t value) {
@@ -135,7 +135,7 @@ void device_commands_set_rf_ch(device_commands *self, uint8_t value) {
 void device_commands_get_rf_dr_low(device_commands *self, bool *value) {
     uint8_t rf_setup_register;
     device_commands_read_register(self, REGISTER_ADDRESS_RF_SETUP, &rf_setup_register, 1);
-    *value = (rf_setup_register & 0x20) >> 5;
+    *value = (rf_setup_register >> 5) & 0x01;
 }
 
 void device_commands_set_rf_dr_low(device_commands *self, bool value) {
@@ -148,7 +148,7 @@ void device_commands_set_rf_dr_low(device_commands *self, bool value) {
 void device_commands_get_rf_dr_high(device_commands *self, bool *value) {
     uint8_t rf_setup_register;
     device_commands_read_register(self, REGISTER_ADDRESS_RF_SETUP, &rf_setup_register, 1);
-    *value = (rf_setup_register & 0x08) >> 3;
+    *value = (rf_setup_register >> 3) & 0x01;
 }
 
 void device_commands_set_rf_dr_high(device_commands *self, bool value) {
@@ -161,7 +161,7 @@ void device_commands_set_rf_dr_high(device_commands *self, bool value) {
 void device_commands_get_rf_pwr(device_commands *self, uint8_t *value) {
     uint8_t rf_setup_register;
     device_commands_read_register(self, REGISTER_ADDRESS_RF_SETUP, &rf_setup_register, 1);
-    *value = (rf_setup_register & 0x06) >> 1;
+    *value = (rf_setup_register >> 1) & 0x03;
 }
 
 void device_commands_set_rf_pwr(device_commands *self, uint8_t value) {
@@ -174,7 +174,7 @@ void device_commands_set_rf_pwr(device_commands *self, uint8_t value) {
 void device_commands_get_rx_dr(device_commands *self, bool *value) {
     uint8_t status_register;
     device_commands_read_register(self, REGISTER_ADDRESS_STATUS, &status_register, 1);
-    *value = (status_register & 0x40) >> 6;
+    *value = (status_register >> 6) & 0x01;
 }
 
 void device_commands_clear_rx_dr(device_commands *self) {
@@ -187,7 +187,7 @@ void device_commands_clear_rx_dr(device_commands *self) {
 void device_commands_get_tx_ds(device_commands *self, bool *value) {
     uint8_t status_register;
     device_commands_read_register(self, REGISTER_ADDRESS_STATUS, &status_register, 1);
-    *value = (status_register & 0x20) >> 5;
+    *value = (status_register >> 5) & 0x01;
 }
 
 void device_commands_clear_tx_ds(device_commands *self) {
@@ -200,7 +200,7 @@ void device_commands_clear_tx_ds(device_commands *self) {
 void device_commands_get_max_rt(device_commands *self, bool *value) {
     uint8_t status_register;
     device_commands_read_register(self, REGISTER_ADDRESS_STATUS, &status_register, 1);
-    *value = (status_register & 0x10) >> 4;
+    *value = (status_register >> 4) & 0x01;
 }
 
 void device_commands_clear_max_rt(device_commands *self) {
@@ -252,7 +252,7 @@ void device_commands_get_rx_empty(device_commands *self, bool *value) {
 void device_commands_get_en_dpl(device_commands *self, bool *value) {
     uint8_t feature_register;
     device_commands_read_register(self, REGISTER_ADDRESS_FEATURE, &feature_register, 1);
-    *value = (feature_register & 0x04) >> 2;
+    *value = (feature_register >> 2) & 0x01;
 }
 
 void device_commands_set_en_dpl(device_commands *self, bool value) {
