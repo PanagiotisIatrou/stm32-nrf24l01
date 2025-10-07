@@ -149,41 +149,6 @@ void nrf24l01_set_retransmit_count(nrf24l01 *self, uint8_t count) {
     device_commands_set_arc(&self->commands_handler, count);
 }
 
-void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count) {
-    // Clear any leftover packets
-    device_commands_flush_tx(&self->commands_handler);
-    
-    // Send the packets
-    for (int i = 0; i < count; i++) {
-        // Write the payload
-        device_commands_w_tx_payload(&self->commands_handler, value[i], 32);
-
-        // Start the transmission
-        spi_interface_pulse_ce(&self->spi_handler);
-
-        // Wait for TX_DS or MAX_RT
-        uint8_t status;
-        while (true) {
-            bool tx_ds;
-            device_commands_get_tx_ds(&self->commands_handler, &tx_ds);
-
-            bool max_rt;
-            device_commands_get_max_rt(&self->commands_handler, &max_rt);
-
-            if (tx_ds) {
-                device_commands_clear_tx_ds(&self->commands_handler);
-                break;
-            }
-            if (max_rt) {
-                device_commands_clear_max_rt(&self->commands_handler);
-
-                // Pulse CE to restart the transmission of the packet
-                spi_interface_pulse_ce(&self->spi_handler);
-            }
-        }
-    }
-}
-
 void nrf24l01_send_packets_fast(nrf24l01 *self, uint8_t **value, int count) {
     // Clear any leftover packets
     device_commands_flush_tx(&self->commands_handler);
@@ -223,30 +188,6 @@ void nrf24l01_send_packets_fast(nrf24l01 *self, uint8_t **value, int count) {
     }
 
     spi_interface_disable_ce(&self->spi_handler);
-}
-
-void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count) {
-    // Clear any leftover packets
-    device_commands_flush_tx(&self->commands_handler);
-
-    // Send the packets
-    for (int i = 0; i < count; i++) {
-        // Write the payload
-        device_commands_w_tx_payload_no_ack(&self->commands_handler, value[i], 32);
-
-        // Start the transmission
-        spi_interface_pulse_ce(&self->spi_handler);
-
-        // Wait for TX_DS
-        while (true) {
-            bool tx_ds;
-            device_commands_get_tx_ds(&self->commands_handler, &tx_ds);
-            if (tx_ds) {
-                device_commands_clear_tx_ds(&self->commands_handler);
-                break;
-            }
-        }
-    }
 }
 
 void nrf24l01_send_packets_no_ack_fast(nrf24l01 *self, uint8_t **value, int count) {
