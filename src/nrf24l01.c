@@ -149,7 +149,7 @@ void nrf24l01_set_retransmit_count(nrf24l01 *self, uint8_t count) {
     device_commands_set_arc(&self->commands_handler, count);
 }
 
-void nrf24l01_send_packets_fast(nrf24l01 *self, uint8_t **value, int count) {
+void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count) {
     // Clear any leftover packets
     device_commands_flush_tx(&self->commands_handler);
 
@@ -190,7 +190,7 @@ void nrf24l01_send_packets_fast(nrf24l01 *self, uint8_t **value, int count) {
     spi_interface_disable_ce(&self->spi_handler);
 }
 
-void nrf24l01_send_packets_no_ack_fast(nrf24l01 *self, uint8_t **value, int count) {
+void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count) {
     // Clear any leftover packets
     device_commands_flush_tx(&self->commands_handler);
 
