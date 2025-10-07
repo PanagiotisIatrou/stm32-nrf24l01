@@ -43,13 +43,11 @@ void nrf24l01_power_down(nrf24l01 *self) {
 }
 
 void nrf24l01_config_tx(nrf24l01 *self, uint8_t *address) {
-    device_commands_set_prim_rx(&self->commands_handler, 0);
     device_commands_set_tx_addr(&self->commands_handler, address);
     device_commands_set_rx_addr(&self->commands_handler, 0, address);
 }
 
 void nrf24l01_config_rx(nrf24l01 *self, uint8_t *address) {
-    device_commands_set_prim_rx(&self->commands_handler, 1);
     device_commands_set_rx_addr(&self->commands_handler, 1, address);
     device_commands_set_rx_pw(&self->commands_handler, 1, 32);
 }
@@ -150,6 +148,9 @@ void nrf24l01_set_retransmit_count(nrf24l01 *self, uint8_t count) {
 }
 
 void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count) {
+    // Set TX mode
+    device_commands_set_prim_rx(&self->commands_handler, 0);
+
     // Clear any leftover packets
     device_commands_flush_tx(&self->commands_handler);
 
@@ -191,6 +192,9 @@ void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count) {
 }
 
 void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count) {
+    // Set TX mode
+    device_commands_set_prim_rx(&self->commands_handler, 0);
+
     // Clear any leftover packets
     device_commands_flush_tx(&self->commands_handler);
 
@@ -200,7 +204,6 @@ void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count) {
         // Write the payload
         device_commands_w_tx_payload_no_ack(&self->commands_handler, value[i], 32);
     }
-
 
     // Send the packets
     spi_interface_enable_ce(&self->spi_handler);
@@ -226,10 +229,13 @@ void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count) {
 }
 
 void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
+    // Set RX mode
+    device_commands_set_prim_rx(&self->commands_handler, 1);
+
+    // Clear any leftover packets
     device_commands_flush_rx(&self->commands_handler);
 
     spi_interface_enable_ce(&self->spi_handler);
-
     uint32_t packets_read = 0;
     while (true) {
         // Read RX_DR
@@ -267,10 +273,13 @@ void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
 }
 
 void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t* packet)) {
+    // Set RX mode
+    device_commands_set_prim_rx(&self->commands_handler, 1);
+
+    // Clear any leftover packets
     device_commands_flush_rx(&self->commands_handler);
 
     spi_interface_enable_ce(&self->spi_handler);
-
     while (true) {
         // Read RX_DR
         bool rx_dr;
