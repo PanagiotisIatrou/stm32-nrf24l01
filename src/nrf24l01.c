@@ -324,3 +324,37 @@ void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
 
     spi_interface_disable_ce(&self->spi_handler);
 }
+
+void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t* packet)) {
+    device_commands_flush_rx(&self->commands_handler);
+
+    spi_interface_enable_ce(&self->spi_handler);
+
+    while (true) {
+        // Read RX_DR
+        bool rx_dr;
+        device_commands_get_rx_dr(&self->commands_handler, &rx_dr);
+        if (!rx_dr) {
+            continue;
+        }
+
+        // Read packets as long as RX FIFO is not empty
+        bool packets_left = true;
+        while (packets_left) {
+            // Read the payload
+            uint8_t packet[32];
+            device_commands_r_rx_payload(&self->commands_handler, packet, 32);
+            value_callback(packet);
+
+            // Check RX_EMPTY to see if there are more packets
+            bool rx_empty;
+            device_commands_get_rx_empty(&self->commands_handler, &rx_empty);
+            packets_left = !rx_empty;
+        }
+
+        // Clear RX_DR
+        device_commands_clear_rx_dr(&self->commands_handler);
+    }
+
+    spi_interface_disable_ce(&self->spi_handler);
+}

@@ -8,6 +8,14 @@
 
 #define RUNS 100
 
+int count = 0;
+void value_callback(uint8_t* packet) {
+    count++;
+    if (count >= RUNS * 128) {
+        printf("Received %d packets\n", count);
+    }
+}
+
 void rx() {
     // Initialize SPI1
     spi_init(spi1, 4000000);
@@ -29,13 +37,14 @@ void rx() {
     uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
     nrf24l01_config_rx(&device, address);
 
-    uint8_t *packets[128];
-    for (uint8_t i = 0; i < 128; i++) {
-        packets[i] = malloc(32);
-    }
-    for (int i = 0; i < RUNS; i++) {
-        nrf24l01_receive_packets(&device, packets, 128);
-    }
+    nrf24l01_receive_packets_inf(&device, value_callback);
+    // uint8_t *packets[128];
+    // for (uint8_t i = 0; i < 128; i++) {
+    //     packets[i] = malloc(32);
+    // }
+    // for (int i = 0; i < RUNS; i++) {
+    //     nrf24l01_receive_packets(&device, packets, 128);
+    // }
     printf("Finished receiving packets\n");
     sleep_ms(10000000);
 }

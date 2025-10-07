@@ -64,3 +64,5 @@ void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count);
 void nrf24l01_send_packets_no_ack_fast(nrf24l01 *self, uint8_t **value, int count);
 
 void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count);
+
+void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t* packet));
