@@ -289,7 +289,7 @@ void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
 
     spi_interface_enable_ce(&self->spi_handler);
 
-    int packets_read = 0;
+    uint32_t packets_read = 0;
     while (true) {
         // Read RX_DR
         bool rx_dr;
@@ -303,11 +303,9 @@ void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
         while (packets_left) {
             // Read the payload
             device_commands_r_rx_payload(&self->commands_handler, packets[packets_read], 32);
-            if (packets_read == packets[packets_read][0]) {
-                packets_read++;
-                if (packets_read == count) {
-                    break;
-                }
+            packets_read++;
+            if (packets_read == count) {
+                break;
             }
 
             // Check RX_EMPTY to see if there are more packets

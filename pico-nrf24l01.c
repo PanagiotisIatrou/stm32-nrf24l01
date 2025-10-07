@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define RUNS 100
+
 void rx() {
     // Initialize SPI1
     spi_init(spi1, 4000000);
@@ -31,7 +33,7 @@ void rx() {
     for (uint8_t i = 0; i < 128; i++) {
         packets[i] = malloc(32);
     }
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < RUNS; i++) {
         nrf24l01_receive_packets(&device, packets, 128);
     }
     printf("Finished receiving packets\n");
@@ -67,22 +69,21 @@ void tx() {
     printf("Preparing 128 packets...\n");
     for (uint8_t i = 0; i < 128; i++) {
         payload[i] = malloc(32);
-        payload[i][0] = i;
-        for (int j = 0; j < 31; j++) {
-            payload[i][j + 1] = i;
+        for (int j = 0; j < 32; j++) {
+            payload[i][j] = i;
         }
     }
     printf("Starting transmission of packets...\n");
 
     uint64_t start_time = time_us_64();
 
-    for (int i = 0; i < 1000; i++) {
+    for (uint32_t k = 0; k < RUNS; k++) {
         nrf24l01_send_packets_fast(&device, payload, 128);
     }
 
     uint64_t end_time = time_us_64();
     uint64_t elapsed_time_us = end_time - start_time;
-    printf("Execution time: %llu microseconds\n", elapsed_time_us);
+    printf("Execution time: %llu microseconds %d\n", elapsed_time_us, count);
     sleep_ms(10000000);
 }
 
