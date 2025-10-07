@@ -284,40 +284,31 @@ void nrf24l01_send_packets_no_ack_fast(nrf24l01 *self, uint8_t **value, int coun
     spi_interface_disable_ce(&self->spi_handler);
 }
 
-void nrf24l01_receive_packet(nrf24l01 *self) {
+void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
     device_commands_flush_rx(&self->commands_handler);
 
     spi_interface_enable_ce(&self->spi_handler);
 
-    uint64_t last_packet_time = time_us_64();
-
-    int count = 0;
+    int packets_read = 0;
     while (true) {
         // Read RX_DR
         bool rx_dr;
         device_commands_get_rx_dr(&self->commands_handler, &rx_dr);
         if (!rx_dr) {
-            if (time_us_64() - last_packet_time > 5000000) {
-                printf("Packet receive timeout after %d packets\n", count);
-                break;
-            }
             continue;
         }
 
+        // Read packets as long as RX FIFO is not empty
         bool packets_left = true;
         while (packets_left) {
-            last_packet_time = time_us_64();
-
             // Read the payload
-            uint8_t bytes[32];
-            device_commands_r_rx_payload(&self->commands_handler, bytes, 32);
-
-            if (count % 3 == 0 && bytes[0] != 0xA1
-                || count % 3 == 1 && bytes[0] != 0xB2
-                || count % 3 == 2 && bytes[0] != 0xC3) {
-                // printf("Packet error at count %d: 0x%02X\n", count, bytes[0]);
+            device_commands_r_rx_payload(&self->commands_handler, packets[packets_read], 32);
+            if (packets_read == packets[packets_read][0]) {
+                packets_read++;
+                if (packets_read == count) {
+                    break;
+                }
             }
-            count++;
 
             // Check RX_EMPTY to see if there are more packets
             bool rx_empty;
@@ -327,6 +318,10 @@ void nrf24l01_receive_packet(nrf24l01 *self) {
 
         // Clear RX_DR
         device_commands_clear_rx_dr(&self->commands_handler);
+
+        if (packets_read == count) {
+            break;
+        }
     }
 
     spi_interface_disable_ce(&self->spi_handler);
