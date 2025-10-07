@@ -48,6 +48,10 @@ void device_commands_r_rx_payload(device_commands *self, uint8_t *output, uint o
     spi_interface_send_command(self->spi_handler, COMMAND_CODE_R_RX_PAYLOAD, NULL, 0, output, output_length);
 }
 
+void device_commands_r_rx_pl_wid(device_commands *self, uint8_t *output) {
+    spi_interface_send_command(self->spi_handler, COMMAND_CODE_R_RX_PL_WID, NULL, 0, output, 1);
+}
+
 // Registers
 
 void device_commands_get_crco(device_commands *self, bool *value) {

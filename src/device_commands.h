@@ -10,6 +10,7 @@ typedef enum {
     COMMAND_CODE_FLUSH_TX = 0xE1,
     COMMAND_CODE_FLUSH_RX = 0xE2,
     COMMAND_CODE_W_TX_PAYLOAD_NO_ACK = 0xB0,
+    COMMAND_CODE_R_RX_PL_WID = 0x60,
 } CommandCode;
 
 typedef enum {
@@ -48,6 +49,8 @@ void device_commands_w_tx_payload(device_commands *self, uint8_t *payload, uint 
 void device_commands_w_tx_payload_no_ack(device_commands *self, uint8_t *payload, uint payload_length);
 
 void device_commands_r_rx_payload(device_commands *self, uint8_t *output, uint output_length);
+
+void device_commands_r_rx_pl_wid(device_commands *self, uint8_t *output);
 
 // Registers
 
