@@ -89,7 +89,7 @@ void tx() {
     uint64_t start_time = time_us_64();
 
     for (uint32_t k = 0; k < RUNS; k++) {
-        nrf24l01_send_packets(&device, payload, 128);
+        nrf24l01_send_packets(&device, payload, 128, true);
     }
 
     uint64_t end_time = time_us_64();

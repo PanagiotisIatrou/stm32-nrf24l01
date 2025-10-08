@@ -170,7 +170,7 @@ void nrf24l01_set_retransmit_count(nrf24l01 *self, uint8_t count) {
     device_commands_set_arc(&self->commands_handler, count);
 }
 
-void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count) {
+void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, bool resend_lost_packets) {
     // Set TX mode
     device_commands_set_prim_rx(&self->commands_handler, 0);
 
@@ -206,7 +206,26 @@ void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count) {
                 break;
             }
             if (max_rt) {
+                if (!resend_lost_packets) {
+                    spi_interface_disable_ce(&self->spi_handler);
+                }
+
                 device_commands_clear_max_rt(&self->commands_handler);
+
+                if (!resend_lost_packets) {
+                    device_commands_flush_tx(&self->commands_handler);
+
+                    // Re-queue the flushed packets except the lost one
+                    for (int j = 1; j < 4; j++) {
+                        if (i + j < count) {
+                            // Write the payload
+                            device_commands_w_tx_payload(&self->commands_handler, value[i + j], 32);
+                        }
+                    }
+
+                    spi_interface_enable_ce(&self->spi_handler);
+                    break;
+                }
             }
         }
     }

@@ -55,7 +55,7 @@ uint8_t nrf24l01_get_retransmit_count(nrf24l01 *self);
 
 void nrf24l01_set_retransmit_count(nrf24l01 *self, uint8_t count);
 
-void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count);
+void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, bool resend_lost_packets);
 
 void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count);
 
