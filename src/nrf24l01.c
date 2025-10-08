@@ -5,7 +5,7 @@
 #include "pico/stdlib.h"
 #include "common.h"
 
-bool nrf24l01_init(nrf24l01 *self, uint8_t mosi, uint8_t miso, uint8_t sck, uint8_t csn, uint8_t ce) {
+bool nrf24l01_init(nrf24l01 *self, uint8_t *address_prefix, uint8_t mosi, uint8_t miso, uint8_t sck, uint8_t csn, uint8_t ce) {
     // Check if the provided SPI pin combination is valid
     spi_inst_t* spi = pins_to_spi(mosi, miso, sck);
     if (spi == NULL) {
@@ -19,9 +19,28 @@ bool nrf24l01_init(nrf24l01 *self, uint8_t mosi, uint8_t miso, uint8_t sck, uint
     // Allow NO-ACK packets
     device_commands_set_en_dyn_ack(&self->commands_handler, 1);
 
+    // Disable all pipes
+    for (int i = 0; i < 6; i++) {
+        device_commands_set_erx(&self->commands_handler, i, 0);
+    }
+
+    // Set RX pipe address 0, 1 and TX address to address_prefix + 0x00
+    uint8_t address[5];
+    memcpy(address, address_prefix, 4);
+    address[4] = 0x00;
+    device_commands_set_tx_addr_full(&self->commands_handler, address);
+    device_commands_set_rx_addr_full(&self->commands_handler, 0, address);
+    device_commands_set_rx_addr_full(&self->commands_handler, 1, address);
+
+    // Reset other pipe addresses
+    for (int i = 2; i < 6; i++) {
+        device_commands_set_rx_addr_lsb(&self->commands_handler, i, 0x00);
+    }
+
     // Flush TX/RX FIFO
     device_commands_flush_tx(&self->commands_handler);
     device_commands_flush_rx(&self->commands_handler);
+
     return true;
 }
 
@@ -42,14 +61,18 @@ void nrf24l01_power_down(nrf24l01 *self) {
     device_commands_set_pwr_up(&self->commands_handler, 0);
 }
 
-void nrf24l01_config_tx(nrf24l01 *self, uint8_t *address) {
-    device_commands_set_tx_addr(&self->commands_handler, address);
-    device_commands_set_rx_addr(&self->commands_handler, 0, address);
+void nrf24l01_set_pipe0_write(nrf24l01 *self, uint8_t address) {
+    device_commands_set_tx_addr_lsb(&self->commands_handler, address);
+
+    device_commands_set_rx_addr_lsb(&self->commands_handler, 0, address);
+    device_commands_set_rx_pw(&self->commands_handler, 0, 0);
+    device_commands_set_erx(&self->commands_handler, 0, 1);
 }
 
-void nrf24l01_config_rx(nrf24l01 *self, uint8_t *address) {
-    device_commands_set_rx_addr(&self->commands_handler, 1, address);
-    device_commands_set_rx_pw(&self->commands_handler, 1, 32);
+void nrf24l01_set_pipe_read(nrf24l01 *self, uint pipe, uint8_t address) {
+    device_commands_set_rx_addr_lsb(&self->commands_handler, pipe, address);
+    device_commands_set_rx_pw(&self->commands_handler, pipe, 32);
+    device_commands_set_erx(&self->commands_handler, pipe, 1);
 }
 
 uint8_t nrf24l01_get_channel(nrf24l01 *self) {

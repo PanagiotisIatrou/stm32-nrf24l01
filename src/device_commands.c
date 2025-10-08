@@ -223,22 +223,44 @@ void device_commands_clear_max_rt(device_commands *self) {
     device_commands_write_register(self, REGISTER_ADDRESS_STATUS, &status_register, 1);
 }
 
-void device_commands_get_rx_addr(device_commands *self, uint pipe, uint8_t *value) {
+void device_commands_get_rx_addr_full(device_commands *self, uint pipe, uint8_t *value) {
     uint8_t address = REGISTER_ADDRESS_RX_ADDR_P0 + pipe;
     device_commands_read_register(self, address, value, 5);
 }
 
-void device_commands_set_rx_addr(device_commands *self, uint pipe, uint8_t *value) {
+void device_commands_set_rx_addr_full(device_commands *self, uint pipe, uint8_t *value) {
     uint8_t address = REGISTER_ADDRESS_RX_ADDR_P0 + pipe;
     device_commands_write_register(self, address, value, 5);
 }
 
-void device_commands_get_tx_addr(device_commands *self, uint8_t *value) {
+void device_commands_get_rx_addr_lsb(device_commands *self, uint pipe, uint8_t *value) {
+    uint8_t address = REGISTER_ADDRESS_RX_ADDR_P0 + pipe;
+    uint8_t rx_addr_register_lsb;
+    device_commands_read_register(self, address, &rx_addr_register_lsb, 1);
+    *value = rx_addr_register_lsb;
+}
+
+void device_commands_set_rx_addr_lsb(device_commands *self, uint pipe, uint8_t value) {
+    uint8_t address = REGISTER_ADDRESS_RX_ADDR_P0 + pipe;
+    device_commands_write_register(self, address, &value, 1);
+}
+
+void device_commands_get_tx_addr_full(device_commands *self, uint8_t *value) {
     device_commands_read_register(self, REGISTER_ADDRESS_TX_ADDR, value, 5);
 }
 
-void device_commands_set_tx_addr(device_commands *self, uint8_t *value) {
+void device_commands_set_tx_addr_full(device_commands *self, uint8_t *value) {
     device_commands_write_register(self, REGISTER_ADDRESS_TX_ADDR, value, 5);
+}
+
+void device_commands_get_tx_addr_lsb(device_commands *self, uint8_t *value) {
+    uint8_t tx_addr_register_lsb;
+    device_commands_read_register(self, REGISTER_ADDRESS_TX_ADDR, &tx_addr_register_lsb, 1);
+    *value = tx_addr_register_lsb;
+}
+
+void device_commands_set_tx_addr_lsb(device_commands *self, uint8_t value) {
+    device_commands_write_register(self, REGISTER_ADDRESS_TX_ADDR, &value, 1);
 }
 
 void device_commands_get_rx_pw(device_commands *self, uint pipe, uint8_t *value) {

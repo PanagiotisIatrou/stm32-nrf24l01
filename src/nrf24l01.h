@@ -23,7 +23,7 @@ typedef struct nrf24l01 {
     device_commands commands_handler;
 } nrf24l01;
 
-bool nrf24l01_init(nrf24l01 *self, uint8_t mosi, uint8_t miso, uint8_t sck, uint8_t csn, uint8_t ce);
+bool nrf24l01_init(nrf24l01 *self, uint8_t *address_prefix, uint8_t mosi, uint8_t miso, uint8_t sck, uint8_t csn, uint8_t ce);
 
 bool nrf24l01_get_power_state(nrf24l01 *self);
 
@@ -31,9 +31,9 @@ void nrf24l01_power_up(nrf24l01 *self);
 
 void nrf24l01_power_down(nrf24l01 *self);
 
-void nrf24l01_config_tx(nrf24l01 *self, uint8_t *address);
+void nrf24l01_set_pipe0_write(nrf24l01 *self, uint8_t address);
 
-void nrf24l01_config_rx(nrf24l01 *self, uint8_t *address);
+void nrf24l01_set_pipe_read(nrf24l01 *self, uint pipe, uint8_t address);
 
 uint8_t nrf24l01_get_channel(nrf24l01 *self);
 

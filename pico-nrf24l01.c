@@ -20,8 +20,10 @@ void rx() {
     // Initialize SPI1
     spi_init(spi1, 4000000);
 
+    uint8_t address_prefix[4] = { 0xB3, 0xB4, 0xB5, 0xB6 };
+
     nrf24l01 device;
-    if (!nrf24l01_init(&device, 11, 12, 10, 21, 20)) {
+    if (!nrf24l01_init(&device, address_prefix, 11, 12, 10, 21, 20)) {
         printf("Could not initialize RX device\n");
     }
 
@@ -34,8 +36,7 @@ void rx() {
     nrf24l01_set_power_level(&device, POWER_LEVEL_LOW);
 
     // Configure as RX
-    uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
-    nrf24l01_config_rx(&device, address);
+    nrf24l01_set_pipe_read(&device, 1, 0x15);
 
     nrf24l01_receive_packets_inf(&device, value_callback);
     // uint8_t *packets[128];
@@ -55,9 +56,11 @@ void tx() {
     // Initialize SPI0
     spi_init(spi0, 4000000);
 
+    uint8_t address_prefix[4] = { 0xB3, 0xB4, 0xB5, 0xB6 };
+
     // Initialize the devices
     nrf24l01 device;
-    if (!nrf24l01_init(&device, 19, 16, 18, 27, 26)) {
+    if (!nrf24l01_init(&device, address_prefix, 19, 16, 18, 27, 26)) {
         printf("Could not initialize TX device\n");
     }
 
@@ -70,8 +73,7 @@ void tx() {
     nrf24l01_set_power_level(&device, POWER_LEVEL_LOW);
 
     // Configure as TX
-    uint8_t address[5] = { 0xB3, 0xB4, 0xB5, 0xB6, 0x07 };
-    nrf24l01_config_tx(&device, address);
+    nrf24l01_set_pipe0_write(&device, 0x15);
 
     // Prepare the packets
     uint8_t *payload[128];

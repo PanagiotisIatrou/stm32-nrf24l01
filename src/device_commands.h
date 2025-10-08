@@ -107,13 +107,21 @@ void device_commands_get_max_rt(device_commands *self, bool *value);
 
 void device_commands_clear_max_rt(device_commands *self);
 
-void device_commands_get_rx_addr(device_commands *self, uint pipe, uint8_t *value);
+void device_commands_get_rx_addr_full(device_commands *self, uint pipe, uint8_t *value);
 
-void device_commands_set_rx_addr(device_commands *self, uint pipe, uint8_t *value);
+void device_commands_set_rx_addr_full(device_commands *self, uint pipe, uint8_t *value);
 
-void device_commands_get_tx_addr(device_commands *self, uint8_t *value);
+void device_commands_get_rx_addr_lsb(device_commands *self, uint pipe, uint8_t *value);
 
-void device_commands_set_tx_addr(device_commands *self, uint8_t *value);
+void device_commands_set_rx_addr_lsb(device_commands *self, uint pipe, uint8_t value);
+
+void device_commands_get_tx_addr_full(device_commands *self, uint8_t *value);
+
+void device_commands_set_tx_addr_full(device_commands *self, uint8_t *value);
+
+void device_commands_get_tx_addr_lsb(device_commands *self, uint8_t *value);
+
+void device_commands_set_tx_addr_lsb(device_commands *self, uint8_t value);
 
 void device_commands_get_rx_pw(device_commands *self, uint pipe, uint8_t *value);
 
