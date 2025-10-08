@@ -93,6 +93,19 @@ void device_commands_set_prim_rx(device_commands *self, bool value) {
     device_commands_write_register(self, REGISTER_ADDRESS_CONFIG, &config_register, 1);
 }
 
+void device_commands_get_erx(device_commands *self, uint pipe, bool *value) {
+    uint8_t en_rxaddr_register;
+    device_commands_read_register(self, REGISTER_ADDRESS_EN_RXADDR, &en_rxaddr_register, 1);
+    *value = (en_rxaddr_register >> pipe) & 0x01;
+}
+
+void device_commands_set_erx(device_commands *self, uint pipe, bool value) {
+    uint8_t en_rxaddr_register;
+    device_commands_read_register(self, REGISTER_ADDRESS_EN_RXADDR, &en_rxaddr_register, 1);
+    en_rxaddr_register = (en_rxaddr_register & (~(1 << pipe))) | (value << pipe);
+    device_commands_write_register(self, REGISTER_ADDRESS_EN_RXADDR, &en_rxaddr_register, 1);
+}
+
 void device_commands_get_ard(device_commands *self, uint8_t *value) {
     uint8_t setup_retr_register;
     device_commands_read_register(self, REGISTER_ADDRESS_SETUP_RETR, &setup_retr_register, 1);

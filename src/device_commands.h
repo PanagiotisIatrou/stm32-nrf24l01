@@ -15,6 +15,7 @@ typedef enum {
 
 typedef enum {
     REGISTER_ADDRESS_CONFIG = 0x00,
+    REGISTER_ADDRESS_EN_RXADDR = 0x02,
     REGISTER_ADDRESS_SETUP_RETR = 0x04,
     REGISTER_ADDRESS_RF_CH = 0x05,
     REGISTER_ADDRESS_RF_SETUP = 0x06,
@@ -65,6 +66,10 @@ void device_commands_set_pwr_up(device_commands *self, bool value);
 void device_commands_get_prim_rx(device_commands *self, bool *value);
 
 void device_commands_set_prim_rx(device_commands *self, bool value);
+
+void device_commands_get_erx(device_commands *self, uint pipe, bool *value);
+
+void device_commands_set_erx(device_commands *self, uint pipe, bool value);
 
 void device_commands_get_ard(device_commands *self, uint8_t *value);
 
