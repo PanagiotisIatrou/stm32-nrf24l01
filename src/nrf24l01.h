@@ -144,7 +144,10 @@ uint8_t nrf24l01_get_retransmit_delay(nrf24l01 *self);
 /**
  * Sets the retransmit delay of the device.
  * @param self The nrf24l01 struct to act upon.
- * @param delay The retransmit delay to set. Valid range is [0, 15].
+ * @param delay The retransmit delay to set. Valid range is [0, 15]. Each unit
+ *              corresponds to 250us. For example, a value of 0 means 250us delay,
+ *              a value of 1 means 500us delay, and so on, up to a value of 15
+ *              which means 4000us (4ms) delay.
  */
 void nrf24l01_set_retransmit_delay(nrf24l01 *self, uint8_t delay);
 
