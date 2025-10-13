@@ -9,7 +9,7 @@
 #define RUNS 100
 
 int count = 0;
-void value_callback(uint8_t* packet) {
+void value_callback(uint8_t* packet, uint8_t packet_length) {
     count++;
     if (count >= RUNS * 128) {
         printf("Received %d packets\n", count);
@@ -77,19 +77,21 @@ void tx() {
 
     // Prepare the packets
     uint8_t *payload[128];
+    uint8_t payload_lengths[128];
     printf("Preparing 128 packets...\n");
     for (uint8_t i = 0; i < 128; i++) {
         payload[i] = malloc(32);
         for (int j = 0; j < 32; j++) {
             payload[i][j] = i;
         }
+        payload_lengths[i] = 32;
     }
     printf("Starting transmission of packets...\n");
 
     uint64_t start_time = time_us_64();
 
     for (uint32_t k = 0; k < RUNS; k++) {
-        nrf24l01_send_packets(&device, payload, 128, true);
+        nrf24l01_send_packets(&device, payload, 128, payload_lengths, true);
     }
 
     uint64_t end_time = time_us_64();

@@ -19,6 +19,9 @@ bool nrf24l01_init(nrf24l01 *self, uint8_t *address_prefix, uint8_t mosi, uint8_
     // Allow NO-ACK packets
     device_commands_set_en_dyn_ack(&self->commands_handler, 1);
 
+    // Enable dynamic packet width
+    device_commands_set_en_dpl(&self->commands_handler, 1);
+
     // Disable all pipes
     for (int i = 0; i < 6; i++) {
         device_commands_set_erx(&self->commands_handler, i, 0);
@@ -66,12 +69,14 @@ void nrf24l01_set_pipe0_write(nrf24l01 *self, uint8_t address) {
 
     device_commands_set_rx_addr_lsb(&self->commands_handler, 0, address);
     device_commands_set_rx_pw(&self->commands_handler, 0, 0);
+    device_commands_set_dpl(&self->commands_handler, 0, 1);
     device_commands_set_erx(&self->commands_handler, 0, 1);
 }
 
 void nrf24l01_set_pipe_read(nrf24l01 *self, uint pipe, uint8_t address) {
     device_commands_set_rx_addr_lsb(&self->commands_handler, pipe, address);
     device_commands_set_rx_pw(&self->commands_handler, pipe, 32);
+    device_commands_set_dpl(&self->commands_handler, pipe, 1);
     device_commands_set_erx(&self->commands_handler, pipe, 1);
 }
 
@@ -170,7 +175,7 @@ void nrf24l01_set_retransmit_count(nrf24l01 *self, uint8_t count) {
     device_commands_set_arc(&self->commands_handler, count);
 }
 
-void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, bool resend_lost_packets) {
+void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths, bool resend_lost_packets) {
     // Set TX mode
     device_commands_set_prim_rx(&self->commands_handler, 0);
 
@@ -181,7 +186,7 @@ void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, bool rese
     int preload_count = (count > 3 ? 3 : count);
     for (int i = 0; i < preload_count; i++) {
         // Write the payload
-        device_commands_w_tx_payload(&self->commands_handler, value[i], 32);
+        device_commands_w_tx_payload(&self->commands_handler, value[i], packet_lengths[i]);
     }
 
     // Start sending
@@ -201,7 +206,8 @@ void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, bool rese
                 // Send the next packet if it exists
                 if (i + preload_count < count) {
                     // Write the payload
-                    device_commands_w_tx_payload(&self->commands_handler, value[i + preload_count], 32);
+                    int index = i + preload_count;
+                    device_commands_w_tx_payload(&self->commands_handler, value[index], packet_lengths[index]);
                 }
                 break;
             }
@@ -219,7 +225,8 @@ void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, bool rese
                     for (int j = 1; j < 4; j++) {
                         if (i + j < count) {
                             // Write the payload
-                            device_commands_w_tx_payload(&self->commands_handler, value[i + j], 32);
+                            int index = i + j;
+                            device_commands_w_tx_payload(&self->commands_handler, value[index], packet_lengths[index]);
                         }
                     }
 
@@ -233,7 +240,7 @@ void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, bool rese
     spi_interface_disable_ce(&self->spi_handler);
 }
 
-void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count) {
+void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths) {
     // Set TX mode
     device_commands_set_prim_rx(&self->commands_handler, 0);
 
@@ -244,7 +251,7 @@ void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count) {
     int preload_count = (count > 3 ? 3 : count);
     for (int i = 0; i < preload_count; i++) {
         // Write the payload
-        device_commands_w_tx_payload_no_ack(&self->commands_handler, value[i], 32);
+        device_commands_w_tx_payload_no_ack(&self->commands_handler, value[i], packet_lengths[i]);
     }
 
     // Send the packets
@@ -259,7 +266,8 @@ void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count) {
 
                 if (i + preload_count < count) {
                     // Write the payload
-                    device_commands_w_tx_payload_no_ack(&self->commands_handler, value[i + preload_count], 32);
+                    int index = i + preload_count;
+                    device_commands_w_tx_payload_no_ack(&self->commands_handler, value[index], packet_lengths[index]);
                 }
 
                 break;
@@ -290,8 +298,18 @@ void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
         // Read packets as long as RX FIFO is not empty
         bool packets_left = true;
         while (packets_left) {
+            // Read the payload width
+            uint8_t payload_width;
+            device_commands_r_rx_pl_wid(&self->commands_handler, &payload_width);
+
+            // Flush RX if the payload is bigger than 32 bytes
+            if (payload_width > 32) {
+                device_commands_flush_rx(&self->commands_handler);
+                break;
+            }
+
             // Read the payload
-            device_commands_r_rx_payload(&self->commands_handler, packets[packets_read], 32);
+            device_commands_r_rx_payload(&self->commands_handler, packets[packets_read], payload_width);
             packets_read++;
             if (packets_read == count) {
                 break;
@@ -314,7 +332,7 @@ void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
     spi_interface_disable_ce(&self->spi_handler);
 }
 
-void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t* packet)) {
+void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t* packet, uint8_t packet_length)) {
     // Set RX mode
     device_commands_set_prim_rx(&self->commands_handler, 1);
 
@@ -333,10 +351,20 @@ void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t
         // Read packets as long as RX FIFO is not empty
         bool packets_left = true;
         while (packets_left) {
+            // Read the payload width
+            uint8_t payload_width;
+            device_commands_r_rx_pl_wid(&self->commands_handler, &payload_width);
+
+            // Flush RX if the payload is bigger than 32 bytes
+            if (payload_width > 32) {
+                device_commands_flush_rx(&self->commands_handler);
+                break;
+            }
+
             // Read the payload
-            uint8_t packet[32];
-            device_commands_r_rx_payload(&self->commands_handler, packet, 32);
-            value_callback(packet);
+            uint8_t packet[payload_width];
+            device_commands_r_rx_payload(&self->commands_handler, packet, payload_width);
+            value_callback(packet, payload_width);
 
             // Check RX_EMPTY to see if there are more packets
             bool rx_empty;

@@ -284,6 +284,19 @@ void device_commands_get_rx_empty(device_commands *self, bool *value) {
     *value = fifo_status_register & 0x01;
 }
 
+void device_commands_get_dpl(device_commands *self, uint pipe, bool *value) {
+    uint8_t dynpd_register;
+    device_commands_read_register(self, REGISTER_ADDRESS_DYNPD, &dynpd_register, 1);
+    *value = (dynpd_register >> pipe) & 0x01;
+}
+
+void device_commands_set_dpl(device_commands *self, uint pipe, bool value) {
+    uint8_t dynpd_register;
+    device_commands_read_register(self, REGISTER_ADDRESS_DYNPD, &dynpd_register, 1);
+    dynpd_register = (dynpd_register & (~(1 << pipe))) | (value << pipe);
+    device_commands_write_register(self, REGISTER_ADDRESS_DYNPD, &dynpd_register, 1);
+}
+
 void device_commands_get_en_dpl(device_commands *self, bool *value) {
     uint8_t feature_register;
     device_commands_read_register(self, REGISTER_ADDRESS_FEATURE, &feature_register, 1);
@@ -293,7 +306,7 @@ void device_commands_get_en_dpl(device_commands *self, bool *value) {
 void device_commands_set_en_dpl(device_commands *self, bool value) {
     uint8_t feature_register;
     device_commands_read_register(self, REGISTER_ADDRESS_FEATURE, &feature_register, 1);
-    feature_register = (feature_register & 0xFB) | value;
+    feature_register = (feature_register & 0xFB) | (value << 2);
     device_commands_write_register(self, REGISTER_ADDRESS_FEATURE, &feature_register, 1);
 }
 

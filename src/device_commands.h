@@ -24,6 +24,7 @@ typedef enum {
     REGISTER_ADDRESS_TX_ADDR = 0x10,
     REGISTER_ADDRESS_RX_PW_P0 = 0x11,
     REGISTER_ADDRESS_FIFO_STATUS = 0x17,
+    REGISTER_ADDRESS_DYNPD = 0x1C,
     REGISTER_ADDRESS_FEATURE = 0x1D,
 } RegisterAddress;
 
@@ -128,6 +129,10 @@ void device_commands_get_rx_pw(device_commands *self, uint pipe, uint8_t *value)
 void device_commands_set_rx_pw(device_commands *self, uint pipe, uint8_t value);
 
 void device_commands_get_rx_empty(device_commands *self, bool *value);
+
+void device_commands_get_dpl(device_commands *self, uint pipe, bool *value);
+
+void device_commands_set_dpl(device_commands *self, uint pipe, bool value);
 
 void device_commands_get_en_dpl(device_commands *self, bool *value);
 
