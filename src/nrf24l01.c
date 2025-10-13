@@ -175,6 +175,11 @@ void nrf24l01_set_retransmit_count(nrf24l01 *self, uint8_t count) {
     device_commands_set_arc(&self->commands_handler, count);
 }
 
+void set_crc_bytes(nrf24l01 *self, CrcBytes count) {
+    bool value = count == CRC_BYTES_1 ? 0 : 1;
+    device_commands_set_crco(&self->commands_handler, value);
+}
+
 void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths, bool resend_lost_packets) {
     // Set TX mode
     device_commands_set_prim_rx(&self->commands_handler, 0);

@@ -18,6 +18,11 @@ typedef enum {
     POWER_LEVEL_VERY_HIGH,
 } PowerLevel;
 
+typedef enum {
+    CRC_BYTES_1,
+    CRC_BYTES_2
+} CrcBytes;
+
 typedef struct nrf24l01 {
     spi_interface spi_handler;
     device_commands commands_handler;
@@ -54,6 +59,8 @@ void nrf24l01_set_retransmit_delay(nrf24l01 *self, uint8_t delay);
 uint8_t nrf24l01_get_retransmit_count(nrf24l01 *self);
 
 void nrf24l01_set_retransmit_count(nrf24l01 *self, uint8_t count);
+
+void set_crc_bytes(nrf24l01 *self, CrcBytes count);
 
 void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths, bool resend_lost_packets);
 
