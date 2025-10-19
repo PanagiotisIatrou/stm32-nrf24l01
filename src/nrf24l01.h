@@ -212,8 +212,14 @@ void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count, ui
  * @param self The nrf24l01 struct to act upon.
  * @param packets An array of pointers to buffers where the received packets will be stored
  * @param count The number of packets to receive.
+ * @param timeout The maximum time to wait for packets in milliseconds. If the timeout
+ *                is reached before all packets are received, the function will return
+ *                the number of packets that were actually received up to that point.
+ *                This doesn't apply to the first packet, which will be waited for indefinitely.
+ * @return The number of packets actually received. If no packets were lost, this will
+ *         be equal to 'count'.
  */
-void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count);
+int nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count, uint timeout);
 
 /**
  * Continuously receives packets, calling the provided callback function

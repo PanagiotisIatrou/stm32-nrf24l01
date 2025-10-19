@@ -283,7 +283,7 @@ void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count, ui
     spi_interface_disable_ce(&self->spi_handler);
 }
 
-void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
+int nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count, uint timeout) {
     // Set RX mode
     device_commands_set_prim_rx(&self->commands_handler, 1);
 
@@ -292,17 +292,24 @@ void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
 
     spi_interface_enable_ce(&self->spi_handler);
     uint32_t packets_read = 0;
+    absolute_time_t last_packet_time = get_absolute_time();
     while (true) {
         // Read RX_DR
         bool rx_dr;
         device_commands_get_rx_dr(&self->commands_handler, &rx_dr);
         if (!rx_dr) {
+            int64_t time_ms = absolute_time_diff_us(last_packet_time, get_absolute_time()) / 1000;
+            if (time_ms > timeout && packets_read > 0) {
+                return packets_read;
+            }
             continue;
         }
 
         // Read packets as long as RX FIFO is not empty
         bool packets_left = true;
         while (packets_left) {
+            last_packet_time = get_absolute_time();
+
             // Read the payload width
             uint8_t payload_width;
             device_commands_r_rx_pl_wid(&self->commands_handler, &payload_width);
@@ -335,6 +342,7 @@ void nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count) {
     }
 
     spi_interface_disable_ce(&self->spi_handler);
+    return packets_read;
 }
 
 void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t* packet, uint8_t packet_length)) {

@@ -38,14 +38,17 @@ void rx() {
     // Configure as RX
     nrf24l01_set_pipe_read(&device, 1, 0x15);
 
-    nrf24l01_receive_packets_inf(&device, value_callback);
-    // uint8_t *packets[128];
-    // for (uint8_t i = 0; i < 128; i++) {
-    //     packets[i] = malloc(32);
-    // }
-    // for (int i = 0; i < RUNS; i++) {
-    //     nrf24l01_receive_packets(&device, packets, 128);
-    // }
+    // nrf24l01_receive_packets_inf(&device, value_callback);
+    uint8_t *packets[128];
+    for (uint8_t i = 0; i < 128; i++) {
+        packets[i] = malloc(32);
+    }
+    for (int i = 0; i < RUNS; i++) {
+        int c;
+        if ((c = nrf24l01_receive_packets(&device, packets, 128, 10)) != 128) {
+            printf("Some packets were lost %d\n", c);
+        }
+    }
     printf("Finished receiving packets\n");
     sleep_ms(10000000);
 }
