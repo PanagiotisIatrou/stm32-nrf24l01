@@ -1,7 +1,7 @@
 #pragma once
 
-#include "spi_interface.h"
 #include "nrf24l01/device_commands.h"
+#include "spi_interface.h"
 
 /**
  * Options for the Data rate.
@@ -51,7 +51,9 @@ typedef struct nrf24l01 {
  * @param ce_pin The CE GPIO pin connected to the device.
  * @return Whether initialization was successful or not.
  */
-bool nrf24l01_init(nrf24l01 *self, uint8_t *address_prefix, SPI_HandleTypeDef* spi, GPIO_TypeDef *csn_port, uint16_t csn_pin, GPIO_TypeDef *ce_port, uint16_t ce_pin);
+bool nrf24l01_init(
+        nrf24l01 *self, uint8_t *address_prefix, SPI_HandleTypeDef *spi, GPIO_TypeDef *csn_port, uint16_t csn_pin,
+        GPIO_TypeDef *ce_port, uint16_t ce_pin);
 
 /**
  * @param self The nrf24l01 struct to act upon.
@@ -191,7 +193,8 @@ void set_crc_bytes(nrf24l01 *self, CrcBytes count);
  *                            but guarantees no duplicates.
  *                            NOTE: Both cases are affected by the signal quality.
  */
-void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths, bool resend_lost_packets);
+void nrf24l01_send_packets(
+        nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths, bool resend_lost_packets);
 
 /**
  * Sends multiple packets. Used when reliable transmission is not required, favoring speed.
@@ -227,4 +230,4 @@ int nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count, uint3
  *                       The function be of type void and should take two parameters:
  *                       a pointer to the received packet and the length of the packet.
  */
-void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t* packet, uint8_t packet_length));
+void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t *packet, uint8_t packet_length));

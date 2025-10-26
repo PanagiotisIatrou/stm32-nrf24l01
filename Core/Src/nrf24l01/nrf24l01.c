@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
-bool nrf24l01_init(nrf24l01 *self, uint8_t *address_prefix, SPI_HandleTypeDef* spi, GPIO_TypeDef *csn_port, uint16_t csn_pin, GPIO_TypeDef *ce_port, uint16_t ce_pin) {
+bool nrf24l01_init(
+        nrf24l01 *self, uint8_t *address_prefix, SPI_HandleTypeDef *spi, GPIO_TypeDef *csn_port, uint16_t csn_pin,
+        GPIO_TypeDef *ce_port, uint16_t ce_pin) {
     spi_interface_init(&self->spi_handler, spi, csn_port, csn_pin, ce_port, ce_pin);
     device_commands_init(&self->commands_handler, &self->spi_handler);
 
@@ -51,9 +53,7 @@ void nrf24l01_power_up(nrf24l01 *self) {
     HAL_Delay(5000);
 }
 
-void nrf24l01_power_down(nrf24l01 *self) {
-    device_commands_set_pwr_up(&self->commands_handler, 0);
-}
+void nrf24l01_power_down(nrf24l01 *self) { device_commands_set_pwr_up(&self->commands_handler, 0); }
 
 void nrf24l01_set_pipe0_write(nrf24l01 *self, uint8_t address) {
     device_commands_set_tx_addr_lsb(&self->commands_handler, address);
@@ -171,7 +171,8 @@ void set_crc_bytes(nrf24l01 *self, CrcBytes count) {
     device_commands_set_crco(&self->commands_handler, value);
 }
 
-void nrf24l01_send_packets(nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths, bool resend_lost_packets) {
+void nrf24l01_send_packets(
+        nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths, bool resend_lost_packets) {
     // Set TX mode
     device_commands_set_prim_rx(&self->commands_handler, 0);
 
@@ -336,7 +337,7 @@ int nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count, uint3
     return packets_read;
 }
 
-void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t* packet, uint8_t packet_length)) {
+void nrf24l01_receive_packets_inf(nrf24l01 *self, void (*value_callback)(uint8_t *packet, uint8_t packet_length)) {
     // Set RX mode
     device_commands_set_prim_rx(&self->commands_handler, 1);
 

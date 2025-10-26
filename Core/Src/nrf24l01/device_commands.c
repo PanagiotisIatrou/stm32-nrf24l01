@@ -2,11 +2,10 @@
 
 #include <stdio.h>
 
-void device_commands_init(device_commands *self, spi_interface *spi_handler) {
-    self->spi_handler = spi_handler;
-}
+void device_commands_init(device_commands *self, spi_interface *spi_handler) { self->spi_handler = spi_handler; }
 
-static void device_commands_read_register(device_commands *self, uint8_t address, uint8_t *output, uint8_t output_length) {
+static void
+device_commands_read_register(device_commands *self, uint8_t address, uint8_t *output, uint8_t output_length) {
     uint8_t command = COMMAND_CODE_R_REGISTER | address;
     spi_interface_send_command(self->spi_handler, command, NULL, 0, output, output_length);
 }
@@ -16,17 +15,11 @@ static void device_commands_write_register(device_commands *self, uint8_t addres
     spi_interface_send_command(self->spi_handler, command, data, data_length, NULL, 0);
 }
 
-void device_commands_pulse_ce(device_commands *self) {
-    spi_interface_pulse_ce(self->spi_handler);
-}
+void device_commands_pulse_ce(device_commands *self) { spi_interface_pulse_ce(self->spi_handler); }
 
-void device_commands_enable_ce(device_commands *self) {
-    spi_interface_enable_ce(self->spi_handler);
-}
+void device_commands_enable_ce(device_commands *self) { spi_interface_enable_ce(self->spi_handler); }
 
-void device_commands_disable_ce(device_commands *self) {
-    spi_interface_disable_ce(self->spi_handler);
-}
+void device_commands_disable_ce(device_commands *self) { spi_interface_disable_ce(self->spi_handler); }
 
 // Commands
 

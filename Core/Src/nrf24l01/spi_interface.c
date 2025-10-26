@@ -4,7 +4,9 @@
 
 #include "../../Inc/nrf24l01/common.h"
 
-void spi_interface_init(spi_interface *self, SPI_HandleTypeDef* spi, GPIO_TypeDef *csn_port, uint16_t csn_pin, GPIO_TypeDef *ce_port, uint16_t ce_pin) {
+void spi_interface_init(
+        spi_interface *self, SPI_HandleTypeDef *spi, GPIO_TypeDef *csn_port, uint16_t csn_pin, GPIO_TypeDef *ce_port,
+        uint16_t ce_pin) {
     self->spi = spi;
     self->csn_port = csn_port;
     self->csn_pin = csn_pin;
@@ -16,7 +18,9 @@ void spi_interface_init(spi_interface *self, SPI_HandleTypeDef* spi, GPIO_TypeDe
     HAL_GPIO_WritePin(self->ce_port, self->ce_pin, GPIO_PIN_RESET);
 }
 
-void spi_interface_send_command(spi_interface *self, uint8_t command, uint8_t *data, uint32_t data_length, uint8_t *output, uint32_t output_length) {
+void spi_interface_send_command(
+        spi_interface *self, uint8_t command, uint8_t *data, uint32_t data_length, uint8_t *output,
+        uint32_t output_length) {
     HAL_GPIO_WritePin(self->csn_port, self->csn_pin, GPIO_PIN_RESET);
 
     uint8_t buffer[1 + 32];
@@ -42,10 +46,6 @@ void spi_interface_pulse_ce(spi_interface *self) {
     HAL_GPIO_WritePin(self->ce_port, self->ce_pin, GPIO_PIN_RESET);
 }
 
-void spi_interface_enable_ce(spi_interface *self) {
-    HAL_GPIO_WritePin(self->ce_port, self->ce_pin, GPIO_PIN_SET);
-}
+void spi_interface_enable_ce(spi_interface *self) { HAL_GPIO_WritePin(self->ce_port, self->ce_pin, GPIO_PIN_SET); }
 
-void spi_interface_disable_ce(spi_interface *self) {
-    HAL_GPIO_WritePin(self->ce_port, self->ce_pin, GPIO_PIN_RESET);
-}
+void spi_interface_disable_ce(spi_interface *self) { HAL_GPIO_WritePin(self->ce_port, self->ce_pin, GPIO_PIN_RESET); }

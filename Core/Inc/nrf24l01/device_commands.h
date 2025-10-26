@@ -1,7 +1,7 @@
 #pragma once
 
-#include "spi_interface.h"
 #include <stdbool.h>
+#include "spi_interface.h"
 
 /**
  * Command codes for the nrf24l01 device
