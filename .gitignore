@@ -54,3 +54,8 @@ release
 *.su
 *.idb
 *.pdb
+*.cfg
+!*.ld
+
+# Extra
+*.launch
