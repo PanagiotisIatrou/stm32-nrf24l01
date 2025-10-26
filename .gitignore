@@ -59,3 +59,4 @@ release
 
 # Extra
 *.launch
+CMakeLists_template.txt
