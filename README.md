@@ -1,6 +1,6 @@
-# smt32-nrf24l01
+# stm32-nrf24l01
 
-SMT32 C library for the nrf24l01 wireless RF transceiver
+STM32 C library for the nrf24l01 wireless RF transceiver
 
 ## How to connect
 
