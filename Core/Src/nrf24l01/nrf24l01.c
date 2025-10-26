@@ -1,4 +1,4 @@
-#include "nrf24l01.h"
+#include "../../Inc/nrf24l01/nrf24l01.h"
 
 #include <stdio.h>
 #include <string.h>

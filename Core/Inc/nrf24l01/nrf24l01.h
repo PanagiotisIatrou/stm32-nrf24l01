@@ -1,7 +1,7 @@
 #pragma once
 
 #include "spi_interface.h"
-#include "device_commands.h"
+#include "nrf24l01/device_commands.h"
 
 /**
  * Options for the Data rate.
