@@ -1,5 +1,14 @@
-# pico-nrf24l01
-Raspberry Pi Pico C library for the nrf24l01 wireless RF transceiver
+# smt32-nrf24l01
+
+SMT32 C library for the nrf24l01 wireless RF transceiver
+
+## How to connect
+
+## How to run
+
+## How to use
+
+## Features
 
 ## Resources
 

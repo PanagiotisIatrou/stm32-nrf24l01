@@ -1,66 +1,73 @@
-# Generated Cmake Pico project file
+#THIS FILE IS AUTO GENERATED FROM THE TEMPLATE! DO NOT CHANGE!
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_VERSION 1)
+cmake_minimum_required(VERSION 3.28)
 
-cmake_minimum_required(VERSION 3.13)
+# specify cross-compilers and tools
+set(CMAKE_C_COMPILER arm-none-eabi-gcc)
+set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
+set(CMAKE_ASM_COMPILER  arm-none-eabi-gcc)
+set(CMAKE_AR arm-none-eabi-ar)
+set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
+set(CMAKE_OBJDUMP arm-none-eabi-objdump)
+set(SIZE arm-none-eabi-size)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-set(CMAKE_C_STANDARD 11)
+# project settings
+project(smt32_nrf24l01 C CXX ASM)
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_C_STANDARD 11)
 
-# Initialise pico_sdk from installed location
-# (note this can come from environment, CMake cache etc)
+#Uncomment for hardware floating point
+#add_compile_definitions(ARM_MATH_CM4;ARM_MATH_MATRIX_CHECK;ARM_MATH_ROUNDING)
+#add_compile_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
+#add_link_options(-mfloat-abi=hard -mfpu=fpv4-sp-d16)
 
-# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
-if(WIN32)
-    set(USERHOME $ENV{USERPROFILE})
-else()
-    set(USERHOME $ENV{HOME})
-endif()
-set(sdkVersion 2.2.0)
-set(toolchainVersion 14_2_Rel1)
-set(picotoolVersion 2.2.0)
-set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
-if (EXISTS ${picoVscode})
-    include(${picoVscode})
-endif()
-# ====================================================================================
-set(PICO_BOARD pico CACHE STRING "Board type")
+#Uncomment for software floating point
+#add_compile_options(-mfloat-abi=soft)
 
-# Pull in Raspberry Pi Pico SDK (must be before project)
-include(pico_sdk_import.cmake)
+add_compile_options(-mcpu=cortex-m3 -mthumb -mthumb-interwork)
+add_compile_options(-ffunction-sections -fdata-sections -fno-common -fmessage-length=0)
 
-project(pico-nrf24l01 C CXX ASM)
+# uncomment to mitigate c++17 absolute addresses warnings
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-register")
 
-# Initialise the Raspberry Pi Pico SDK
-pico_sdk_init()
+# Enable assembler files preprocessing
+add_compile_options($<$<COMPILE_LANGUAGE:ASM>:-x$<SEMICOLON>assembler-with-cpp>)
 
-# Add executable. Default name is the project name, version 0.1
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    message(STATUS "Maximum optimization for speed")
+    add_compile_options(-Ofast)
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
+    message(STATUS "Maximum optimization for speed, debug info included")
+    add_compile_options(-Ofast -g)
+elseif ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")
+    message(STATUS "Maximum optimization for size")
+    add_compile_options(-Os)
+else ()
+    message(STATUS "Minimal optimization, debug info included")
+    add_compile_options(-Og -g)
+endif ()
 
-add_executable(pico-nrf24l01
-    pico-nrf24l01.c
-    src/nrf24l01.c
-    src/device_commands.c
-    src/spi_interface.c
-)
+include_directories(Core/Inc Drivers/STM32F1xx_HAL_Driver/Inc/Legacy Drivers/STM32F1xx_HAL_Driver/Inc Drivers/CMSIS/Device/ST/STM32F1xx/Include Drivers/CMSIS/Include Core/Inc Drivers/STM32F1xx_HAL_Driver/Inc/Legacy Drivers/STM32F1xx_HAL_Driver/Inc Drivers/CMSIS/Device/ST/STM32F1xx/Include Drivers/CMSIS/Include)
 
-pico_set_program_name(pico-nrf24l01 "pico-nrf24l01")
-pico_set_program_version(pico-nrf24l01 "0.1")
+add_definitions(-DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB)
 
-# Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(pico-nrf24l01 0)
-pico_enable_stdio_usb(pico-nrf24l01 1)
+file(GLOB_RECURSE SOURCES "Core/*.*" "Drivers/*.*" "Core/*.*" "Drivers/*.*")
 
-# Add the standard library to the build
-target_link_libraries(
-    pico-nrf24l01
-    pico_stdlib
-    hardware_spi
-    pico_multicore
-)
+set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F103C8TX_FLASH.ld)
 
-# Add the standard include files to the build
-target_include_directories(pico-nrf24l01 PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}
-)
+add_link_options(-Wl,-gc-sections,--print-memory-usage,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map)
+add_link_options(-mcpu=cortex-m3 -mthumb -mthumb-interwork)
+add_link_options(-T ${LINKER_SCRIPT})
 
-pico_add_extra_outputs(pico-nrf24l01)
+add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
 
+set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
+set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
+
+add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
+        COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
+        COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
+        COMMENT "Building ${HEX_FILE}
+Building ${BIN_FILE}")
