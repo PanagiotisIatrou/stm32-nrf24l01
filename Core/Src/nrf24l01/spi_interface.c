@@ -1,8 +1,8 @@
-#include "../../Inc/nrf24l01/spi_interface.h"
+#include "nrf24l01/spi_interface.h"
 
 #include <string.h>
 
-#include "../../Inc/nrf24l01/common.h"
+#include "nrf24l01/common.h"
 
 void spi_interface_init(
         spi_interface *self, SPI_HandleTypeDef *spi, GPIO_TypeDef *csn_port, uint16_t csn_pin, GPIO_TypeDef *ce_port,
