@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "main.h"
+#include "stm32f1xx_hal.h"
 
 /**
  * SPI peripheral abstraction layer, used to communicate with the nRF24l01 device.
