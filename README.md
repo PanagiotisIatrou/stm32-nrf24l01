@@ -1,8 +1,20 @@
 # stm32-nrf24l01
 
-STM32 C library for the nrf24l01 wireless RF transceiver
+<a target="_blank" href="https://www.paypal.com/donate/?hosted_button_id=J65KNQYEK88ML">
+  <img src="https://img.shields.io/badge/Donate-PayPal-green.svg">
+</a>
+
+STM32 C library for the nRF24L01 wireless RF transceiver. Also compatible with nRF24L01+.
 
 ## How to connect
+
+In order to connect the nRF24L01 module to the STM32F103C8T6 board (blue pill), use the following connections. A similar connection scheme can be used for other STM32 boards.
+
+**Note** that for stability purposes, it is recommended to add 2 capacitors (electrolytic 10uF and ceramic 0.1uF) between VCC and GND of the nRF24L01 module. Alternatively, you can use a dedicated nRF24L01 Breakout Adapter board that includes the necessary capacitors and a voltage regulator which allows powering the nRF24L01 module from a 5V source, instead of 3.3V.
+
+<img src="images/connections.png" width="600px">
+
+In the image above, a breakout adapter board is used.
 
 ## How to run
 
