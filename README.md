@@ -49,7 +49,7 @@ In order to connect the nRF24L01 module to the STM32F103C8T6 board (blue pill), 
   </tr>
 </table>
 
-Note that SCK, MOSI and MISO pins are connected to the SPI1 pins. Pins from other SPI peripherals could also be used.  
+Note that SCK, MOSI and MISO pins are connected to the SPI1 pins. Pins from other SPI peripherals could also be used. CSN and CE pins are assigned to arbitrary GPIO pins and can be changed as needed.  
 A similar connection scheme can be used for other STM32 boards.
 
 <img src="images/connections.png" width="600px">
