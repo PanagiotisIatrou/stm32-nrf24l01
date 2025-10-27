@@ -8,9 +8,48 @@ STM32 C library for the nRF24L01 wireless RF transceiver. Also compatible with n
 
 ## How to connect
 
-In order to connect the nRF24L01 module to the STM32F103C8T6 board (blue pill), use the following connections. A similar connection scheme can be used for other STM32 boards.
-
 **Note** that for stability purposes, it is recommended to add 2 capacitors (electrolytic 10uF and ceramic 0.1uF) between VCC and GND of the nRF24L01 module. Alternatively, you can use a dedicated nRF24L01 Breakout Adapter board that includes the necessary capacitors and a voltage regulator which allows powering the nRF24L01 module from a 5V source, instead of 3.3V.
+
+<img src="images/nrf24l01-adapter.png" width="300px">
+
+In order to connect the nRF24L01 module to the STM32F103C8T6 board (blue pill), use the following connections.
+
+<table>
+  <tr>
+    <td><b>STM32</b></td>
+    <td><b>nRF24L01</b></td>
+  </tr>
+  <tr>
+    <td>B0</td>
+    <td>CSN</td>
+  </tr>
+  <tr>
+    <td>B1</td>
+    <td>CE</td>
+  </tr>
+  <tr>
+    <td>3.3</td>
+    <td>VCC</td>
+  </tr>
+  <tr>
+    <td>G</td>
+    <td>GND</td>
+  </tr>
+  <tr>
+    <td>A5</td>
+    <td>SCK</td>
+  </tr>
+  <tr>
+    <td>A6</td>
+    <td>MISO</td>
+  </tr>
+  <tr>
+    <td>A7</td>
+    <td>MOSI</td>
+  </tr>
+</table>
+
+A similar connection scheme can be used for other STM32 boards.
 
 <img src="images/connections.png" width="600px">
 
