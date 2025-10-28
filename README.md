@@ -56,9 +56,14 @@ A similar connection scheme can be used for other STM32 boards.
 
 In the image above, a breakout adapter board is used.
 
-## How to run
-
 ## How to use
+
+Before doing anything, it is necessary to initialize following (either using CubeMX or manually):
+- The SPI peripheral
+  - Mode: Full-Duplex Master
+  - Prescaler: 16 or 8
+  - First Bit: MSB First
+- CSN, CE pins configured as outputs
 
 ## Features
 
