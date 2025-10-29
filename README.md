@@ -58,12 +58,28 @@ In the image above, a breakout adapter board is used.
 
 ## How to use
 
-Before doing anything, it is necessary to initialize following (either using CubeMX or manually):
+### Step 1
+
+Initialize following (either using CubeMX or manually):
 - The SPI peripheral
   - Mode: Full-Duplex Master
-  - Prescaler: 16 or 8
+  - Prescaler: Any value that results in a baud rate higher than 2MB/s
   - First Bit: MSB First
 - CSN, CE pins configured as outputs
+
+### Step 2
+
+Include the library to your project by copying the `stm32-nrf24l01` folder to `project_root/Middlewares`.
+
+### Step 3
+
+Link the library files to the project.  
+In STM32CubeIDE navigate to `Project -> Properties -> C/C++ General -> Paths and Symbols`. Then, select the include tab, click *Add*, then click *Workspace* and select the `Middlewares/stm32-nrf24l01/Inc` folder.  
+Then navigate to the *Source Location* tab and do the same for the `Middlewares/stm32-nrf24l01/Src` folder.
+
+### Step 4
+
+Include the library with `#include "nrf24l01.h"`. Done!
 
 ## Features
 
