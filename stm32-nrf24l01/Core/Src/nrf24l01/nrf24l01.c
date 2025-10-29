@@ -50,7 +50,7 @@ void nrf24l01_power_up(nrf24l01 *self) {
     device_commands_set_pwr_up(&self->commands_handler, 1);
 
     // Wait for the Tpd2stby delay
-    HAL_Delay(5000);
+    HAL_Delay(5);
 }
 
 void nrf24l01_power_down(nrf24l01 *self) { device_commands_set_pwr_up(&self->commands_handler, 0); }

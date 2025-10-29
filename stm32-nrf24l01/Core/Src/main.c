@@ -165,6 +165,7 @@ void tx() {
  * @retval int
  */
 int main(void) {
+
     /* USER CODE BEGIN 1 */
 
     /* USER CODE END 1 */
@@ -182,12 +183,7 @@ int main(void) {
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-    // Enable TRC
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    // Reset the cycle counter
-    DWT->CYCCNT = 0;
-    // Enable the cycle counter
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -198,8 +194,8 @@ int main(void) {
     /* USER CODE BEGIN 2 */
     printf("\x1B[2J");
     printf("Starting...\r\n");
-    // tx();
-    rx();
+    tx();
+    // rx();
     /* USER CODE END 2 */
 
     /* Infinite loop */
