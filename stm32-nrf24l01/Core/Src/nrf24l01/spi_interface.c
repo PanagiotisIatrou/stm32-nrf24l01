@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "common.h"
+#include "stm32_hal.h"
 
 void spi_interface_init(
         spi_interface *self, void *spi, void *csn_port, uint16_t csn_pin, void *ce_port,
