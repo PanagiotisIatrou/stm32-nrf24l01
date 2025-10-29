@@ -1,4 +1,4 @@
-#include "nrf24l01/device_commands.h"
+#include "device_commands.h"
 
 #include <stdio.h>
 
