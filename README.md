@@ -56,7 +56,7 @@ A similar connection scheme can be used for other STM32 boards.
 
 In the image above, a breakout adapter board is used.
 
-## How to use
+## How to install
 
 ### Step 1
 
@@ -80,6 +80,8 @@ Then navigate to the *Source Location* tab and do the same for the `Middlewares/
 ### Step 4
 
 Include the library with `#include "nrf24l01.h"`. Done!
+
+## How to use
 
 ## Features
 
