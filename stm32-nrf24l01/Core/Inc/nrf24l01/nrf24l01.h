@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nrf24l01/device_commands.h"
+#include "device_commands.h"
 #include "spi_interface.h"
 
 /**
@@ -52,8 +52,8 @@ typedef struct nrf24l01 {
  * @return Whether initialization was successful or not.
  */
 bool nrf24l01_init(
-        nrf24l01 *self, uint8_t *address_prefix, SPI_HandleTypeDef *spi, GPIO_TypeDef *csn_port, uint16_t csn_pin,
-        GPIO_TypeDef *ce_port, uint16_t ce_pin);
+        nrf24l01 *self, uint8_t *address_prefix, void *spi, void *csn_port, uint16_t csn_pin,
+        void *ce_port, uint16_t ce_pin);
 
 /**
  * @param self The nrf24l01 struct to act upon.

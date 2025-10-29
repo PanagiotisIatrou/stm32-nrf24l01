@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "nrf24l01/nrf24l01.h"
+#include "nrf24l01.h"
 #include "stdint.h"
 #include "stdio.h"
 
