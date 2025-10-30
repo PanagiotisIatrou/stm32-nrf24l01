@@ -174,6 +174,12 @@ void set_crc_bytes(nrf24l01 *self, CrcBytes count) {
     device_commands_set_crco(&self->commands_handler, value);
 }
 
+void nrf24l01_send_packet(nrf24l01 *self, uint8_t *packet, uint8_t packet_length, bool resend_lost_packet) {
+    uint8_t *packets[] = { packet };
+    uint8_t lengths[] = { packet_length };
+    nrf24l01_send_packets(self, packets, 1, lengths, resend_lost_packet);
+}
+
 void nrf24l01_send_packets(
         nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths, bool resend_lost_packets) {
     // Set TX mode
@@ -240,6 +246,12 @@ void nrf24l01_send_packets(
     spi_interface_disable_ce(&self->spi_handler);
 }
 
+void nrf24l01_send_packet_no_ack(nrf24l01 *self, uint8_t *packet, uint8_t packet_length) {
+    uint8_t *packets[] = { packet };
+    uint8_t lengths[] = { packet_length };
+    nrf24l01_send_packets_no_ack(self, packets, 1, lengths);
+}
+
 void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths) {
     // Set TX mode
     device_commands_set_prim_rx(&self->commands_handler, 0);
@@ -276,6 +288,11 @@ void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count, ui
     }
 
     spi_interface_disable_ce(&self->spi_handler);
+}
+
+int nrf24l01_receive_packet(nrf24l01 *self, uint8_t *packet, uint32_t timeout) {
+    uint8_t *packets[] = { packet };
+    return nrf24l01_receive_packets(self, packets, 1, timeout);
 }
 
 int nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count, uint32_t timeout) {

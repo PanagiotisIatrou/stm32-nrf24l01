@@ -177,6 +177,22 @@ void nrf24l01_set_retransmit_count(nrf24l01 *self, uint8_t count);
 void set_crc_bytes(nrf24l01 *self, CrcBytes count);
 
 /**
+ * Sends a single packet. Used when reliable transmission is required,
+ * sacrificing speed.
+ * @param self The nrf24l01 struct to act upon.
+ * @param packet The packet to send.
+ * @param packet_length The length of the packet to send.
+ * @param resend_lost_packet If true, lost packets will be resent indefinitely
+ *                          until acknowledged This results in all of the
+ * packets sent reliably, though rarely, it can lead to duplicates. If it is set
+ * to false, lost packets will be resent up to the number set by
+ * nrf24l01_set_retransmit_count before being dropped. Can rarely lead to lost
+ * packets, but guarantees no duplicates. NOTE: Both cases are affected by the
+ * signal quality.
+ */
+void nrf24l01_send_packet(nrf24l01 *self, uint8_t *packet, uint8_t packet_length, bool resend_lost_packet);
+
+/**
  * Sends multiple packets. Used when reliable transmission is required, sacrificing speed.
  * @param self The nrf24l01 struct to act upon.
  * @param value An array of pointers to the packets to send. The packets can have
@@ -184,17 +200,20 @@ void set_crc_bytes(nrf24l01 *self, CrcBytes count);
  * @param count The number of packets to send.
  * @param packet_lengths An array containing the lengths of each packet to send.
  *                       Each length must be in the range [1, 32].
- * @param resend_lost_packets If true, lost packets will be resent indefinitely
- *                            until acknowledged This results in all of the packets
- *                            sent reliably, though rarely, it can lead to duplicates.
- *                            If it is set to false, lost packets will be resent up
- *                            to the number set by nrf24l01_set_retransmit_count
- *                            before being dropped. Can rarely lead to lost packets,
- *                            but guarantees no duplicates.
- *                            NOTE: Both cases are affected by the signal quality.
+ * @param resend_lost_packets If true, the lost packet will be resent until acknowledged.
+ *                            Also see documentation of nrf24l01_send_packet.
  */
 void nrf24l01_send_packets(
         nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths, bool resend_lost_packets);
+
+/**
+ * Sends a single packet. Used when reliable transmission is not required,
+ * favoring speed. Depending on the signal quality, some packets may be lost.
+ * @param self  The nrf24l01 struct to act upon.
+ * @param packet  The packet to send.
+ * @param packet_length The length of the packet to send.
+ */
+void nrf24l01_send_packet_no_ack(nrf24l01 *self, uint8_t *packet, uint8_t packet_length);
 
 /**
  * Sends multiple packets. Used when reliable transmission is not required, favoring speed.
@@ -207,6 +226,16 @@ void nrf24l01_send_packets(
  *                       Each length must be in the range [1, 32].
  */
 void nrf24l01_send_packets_no_ack(nrf24l01 *self, uint8_t **value, int count, uint8_t *packet_lengths);
+
+/**
+ * Receives a single packet.
+ * @param self  The nrf24l01 struct to act upon.
+ * @param packet  The buffer where the received packet will be stored.
+ * @param timeout The maximum time to wait for the packet in milliseconds.
+ * @return If the timeout is reached before the packet is received, the function will return 0.
+ *         Otherwise, it will return 1.
+ */
+int nrf24l01_receive_packet(nrf24l01 *self, uint8_t *packet, uint32_t timeout);
 
 /**
  * Receives a specified number of packets.
