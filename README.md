@@ -78,6 +78,44 @@ In STM32CubeIDE navigate to `Project -> Properties -> C/C++ General -> Paths and
 
 ### Step 4
 
+Create a `stm32_hal.c` file in your project and implement the functions of the following template. These function implementations depend on the HAL library and the specific STM32 microcontroller being used. Here is an [example](examples/stress-test/App/Src/stm32_hal.c) for the STM32F103C8T6 (blue pill) MCU.
+
+```c
+#include "stm32_hal.h"
+
+#include "stm32xxxx_hal.h"
+
+void stm32_hal_write_pin(void *port, uint16_t pin, bool value) {
+    
+}
+
+uint8_t stm32_hal_spi_transmit(void *spi, const uint8_t *data, uint16_t size, uint32_t timeout) {
+    
+}
+
+uint8_t stm32_hal_spi_receive(void *spi, uint8_t *data, uint16_t size, uint32_t timeout) {
+    
+}
+
+uint32_t stm32_hal_get_sys_tick_val() {
+    
+}
+
+uint32_t stm32_hal_get_sys_tick_load() {
+    
+}
+
+uint32_t stm32_hal_get_system_core_clock() {
+    
+}
+
+uint32_t stm32_hal_get_tick() {
+    
+}
+```
+
+### Step 5
+
 Include the library with `#include "nrf24l01.h"`. Done!
 
 ## How to use
