@@ -80,7 +80,7 @@ In STM32CubeIDE navigate to `Project -> Properties -> C/C++ General -> Paths and
 
 Create a `stm32_hal.c` file in your project and implement the functions of the following template. These function implementations depend on the HAL library and the specific STM32 microcontroller being used. Here is an [example](examples/stress-test/App/Src/stm32_hal.c) for the STM32F103C8T6 (blue pill) MCU.
 
-```c
+```c++
 #include "stm32_hal.h"
 
 #include "stm32xxxx_hal.h"
@@ -124,7 +124,7 @@ Include the library with `#include "nrf24l01.h"`. Done!
 
 Initialize and power up a nRF24L01 device.
 
-```c
+```c++
 #include "nrf24l01.h"
 
 // Initialize the nRF24L01 device connected to SPI1, B0 as CSN and B1 as CE. The address
@@ -142,7 +142,7 @@ nrf24l01_power_up(&device);
 
 Optionally, apply settings to the device.
 
-```c
+```c++
 // Set RF channel to 32.
 nrf24l01_set_channel(&device, 32);
 
@@ -162,19 +162,19 @@ set_crc_bytes(&device, CRC_BYTES_2);
 
 Configure device for packet transmission (Transmit and receive addresses must match)
 
-```c
+```c++
 nrf24l01_set_pipe0_write(&device, 0x15);
 ```
 
 Configure device for packet reception on pipe 1 (Transmit and receive addresses must match)
 
-```c
+```c++
 nrf24l01_set_pipe_read(&device, 1, 0x15);
 ```
 
 Send packets
 
-```c
+```c++
 uint8_t packet0[32] = "Hello, World!";
 uint8_t packet1[32];
 packet1[0] = 42;
@@ -196,7 +196,7 @@ nrf24l01_send_packets_no_ack(&device, packets, 2, payload_lengths);
 
 Receive packets
 
-```c
+```c++
 uint8_t packet0[32];
 uint8_t packet1[32];
 uint8_t *packets[2] = {packet0, packet1};
@@ -211,12 +211,13 @@ nrf24l01_receive_packets(&device, packets, 2, 100)
 
 Receive a stream of packets indefinitely
 
-```c
+```c++
 void value_callback(uint8_t *packet, uint8_t packet_length) {
     printf("Received a packet with size %d\r\n", packet_length);
     // Process the packet data...
 }
 
+// Beware: this function will block indefinitely!
 nrf24l01_receive_packets_inf(&device, value_callback);
 ```
 
