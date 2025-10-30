@@ -120,6 +120,56 @@ Include the library with `#include "nrf24l01.h"`. Done!
 
 ## How to use
 
+**See the examples folder for complete projects**
+
+Initialize and power up a nRF24L01 device connected to SPI1, B0 as CSN and B1 as CE. The address prefix can be any 4-byte array. Transmitter and receiver devices must share the same address prefix to communicate.
+
+```c
+#include "nrf24l01.h"
+
+nrf24l01 device;
+uint8_t address_prefix[4] = {0xB3, 0xB4, 0xB5, 0xB6};
+if (!nrf24l01_init(&device, address_prefix, &hspi1, GPIOB, GPIO_PIN_0, GPIOB, GPIO_PIN_1)) {
+    printf("Could not initialize device\r\n");
+}
+
+nrf24l01_power_up(&device);
+```
+
+Optionally, apply settings to the device.
+
+```c
+// Set RF channel to 32
+nrf24l01_set_channel(&device, 32);
+
+// Set data rate to 2Mbps
+nrf24l01_set_data_rate(&device, DATA_RATE_HIGH);
+
+// Set transmission power to low
+nrf24l01_set_power_level(&device, POWER_LEVEL_LOW);
+
+// Configure auto retransmit in case of failed transmission with delay of 1000us and maximum 5 retransmits
+nrf24l01_set_retransmit_delay(&device, 3);
+nrf24l01_set_retransmit_count(&device, 5);
+
+// Use 2 bytes for the CRC
+set_crc_bytes(&device, CRC_BYTES_2);
+```
+
+Send packets (Transmit and receive addresses must match)
+
+```c
+// Configure as transmitter at address 0x15
+nrf24l01_set_pipe0_write(&device, 0x15);
+```
+
+Receive packets (Transmit and receive addresses must match)
+
+```c
+// Configure as receiver at address 0x15
+nrf24l01_set_pipe_read(&device, 1, 0x15);
+```
+
 ## Features
 
 ## Resources
