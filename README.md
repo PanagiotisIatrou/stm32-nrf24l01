@@ -160,18 +160,64 @@ nrf24l01_set_retransmit_count(&device, 5);
 set_crc_bytes(&device, CRC_BYTES_2);
 ```
 
-Send packets (Transmit and receive addresses must match)
+Configure device for packet transmission (Transmit and receive addresses must match)
 
 ```c
-// Configure as transmitter at address 0x15.
 nrf24l01_set_pipe0_write(&device, 0x15);
 ```
 
-Receive packets (Transmit and receive addresses must match)
+Configure device for packet reception on pipe 1 (Transmit and receive addresses must match)
 
 ```c
-// Configure as receiver at address 0x15.
 nrf24l01_set_pipe_read(&device, 1, 0x15);
+```
+
+Send packets
+
+```c
+uint8_t packet0[32] = "Hello, World!";
+uint8_t packet1[32];
+packet1[0] = 42;
+uint8_t *packets[2] = {packet0, packet1};
+uint8_t payload_lengths[2] = {32, 32};
+
+// Send a single packet with retransmission on failure.
+nrf24l01_send_packet(&device, packet0, true);
+
+// Send a single packet without retransmission on failure.
+nrf24l01_send_packet(&device, packet0, false);
+
+// Send multiple packets in a row.
+nrf24l01_send_packets(&device, packets, 2, payload_lengths, true);
+
+// Send multiple packets in a row without acknowledgments.
+nrf24l01_send_packets_no_ack(&device, packets, 2, payload_lengths);
+```
+
+Receive packets
+
+```c
+uint8_t packet0[32];
+uint8_t packet1[32];
+uint8_t *packets[2] = {packet0, packet1};
+
+// Receive a single packet with 100ms timeout.
+nrf24l01_receive_packet(&device, packet0, 100);
+
+// Receive multiple packets in a row with 100ms timeout for each packet
+// except for the first which does not have a timeout.
+nrf24l01_receive_packets(&device, packets, 2, 100)
+```
+
+Receive a stream of packets indefinitely
+
+```c
+void value_callback(uint8_t *packet, uint8_t packet_length) {
+    printf("Received a packet with size %d\r\n", packet_length);
+    // Process the packet data...
+}
+
+nrf24l01_receive_packets_inf(&device, value_callback);
 ```
 
 ## Features
