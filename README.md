@@ -223,6 +223,20 @@ nrf24l01_receive_packets_inf(&device, value_callback);
 
 ## Features
 
+- Send packets
+  - w/wo auto retransmission on failure
+  - w/wo acknowledgment
+  - single/multiple packets
+- Receive packets
+  - single/multiple packets
+  - infinite stream of packets w/ callback
+- Power up/down to save energy
+- Set RF channel (0-125)
+- Set data rate (250kbps, 1Mbps, 2Mbps)
+- Set power level (low, medium, high, very high)
+- Configure auto retransmit delay and count in case of failed transmission
+- Set CRC length (1 or 2 bytes)
+
 ## Resources
 
 - [nRF24L01+ Product Specification v1.0](https://docs.nordicsemi.com/bundle/nRF24L01P_PS_v1.0/resource/nRF24L01P_PS_v1.0.pdf)
