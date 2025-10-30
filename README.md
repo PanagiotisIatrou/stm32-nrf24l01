@@ -69,13 +69,12 @@ Initialize following (either using CubeMX or manually):
 
 ### Step 2
 
-Include the library to your project by copying the `stm32-nrf24l01` folder to `project_root/Middlewares`.
+Include the library to your project by copying the `stm32-nrf24l01` folder to `project_root/Drivers`.
 
 ### Step 3
 
 Link the library files to the project.  
-In STM32CubeIDE navigate to `Project -> Properties -> C/C++ General -> Paths and Symbols`. Then, select the include tab, click *Add*, then click *Workspace* and select the `Middlewares/stm32-nrf24l01/Inc` folder.  
-Then navigate to the *Source Location* tab and do the same for the `Middlewares/stm32-nrf24l01/Src` folder.
+In STM32CubeIDE navigate to `Project -> Properties -> C/C++ General -> Paths and Symbols`. Then, select the include tab, click *Add*, then click *Workspace* and select the `Drivers/stm32-nrf24l01/Inc` folder.  
 
 ### Step 4
 

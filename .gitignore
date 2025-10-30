@@ -60,3 +60,5 @@ release
 # Extra
 *.launch
 CMakeLists_template.txt
+cmake-build-debug
+cmake-build-release
