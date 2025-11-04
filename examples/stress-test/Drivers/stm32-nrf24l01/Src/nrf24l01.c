@@ -3,8 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "common.h"
-#include "stm32_hal.h"
+#include "nrf24l01_hal.h"
 
 bool nrf24l01_init(
         nrf24l01 *self, uint8_t *address_prefix, void *spi, void *csn_port, uint16_t csn_pin,
@@ -53,7 +52,7 @@ void nrf24l01_power_up(nrf24l01 *self) {
     device_commands_set_pwr_up(&self->commands_handler, 1);
 
     // Wait for the Tpd2stby delay
-    sleep_ms(5);
+    nrf24l01_hal_sleep_ms(5);
 }
 
 void nrf24l01_power_down(nrf24l01 *self) { device_commands_set_pwr_up(&self->commands_handler, 0); }
@@ -304,13 +303,13 @@ int nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count, uint3
 
     spi_interface_enable_ce(&self->spi_handler);
     uint32_t packets_read = 0;
-    uint32_t last_packet_time = stm32_hal_get_tick();
+    uint32_t last_packet_time = nrf24l01_hal_get_ms_ticks();
     while (true) {
         // Read RX_DR
         bool rx_dr;
         device_commands_get_rx_dr(&self->commands_handler, &rx_dr);
         if (!rx_dr) {
-            int64_t time_ms = stm32_hal_get_tick() - last_packet_time;
+            int64_t time_ms = nrf24l01_hal_get_ms_ticks() - last_packet_time;
             if (time_ms > timeout && packets_read > 0) {
                 return packets_read;
             }
@@ -320,7 +319,7 @@ int nrf24l01_receive_packets(nrf24l01 *self, uint8_t **packets, int count, uint3
         // Read packets as long as RX FIFO is not empty
         bool packets_left = true;
         while (packets_left) {
-            last_packet_time = stm32_hal_get_tick();
+            last_packet_time = nrf24l01_hal_get_ms_ticks();
 
             // Read the payload width
             uint8_t payload_width;
