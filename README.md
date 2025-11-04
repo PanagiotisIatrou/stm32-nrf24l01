@@ -78,40 +78,37 @@ In STM32CubeIDE navigate to `Project -> Properties -> C/C++ General -> Paths and
 
 ### Step 4
 
-Create a `stm32_hal.c` file in your project and implement the functions of the following template. These function implementations depend on the HAL library and the specific STM32 microcontroller being used. Here is an [example](examples/stress-test/App/Src/stm32_hal.c) for the STM32F103C8T6 (blue pill) MCU.
+Create a `nrf24l01_hal.c` file in your project and implement the functions of the following template. These function implementations depend on the HAL library and the specific STM32 microcontroller being used. Here is an [example](examples/stress-test/App/Src/nrf24l01_hal.c) for the STM32F103C8T6 (blue pill) MCU.
 
 ```c++
-#include "stm32_hal.h"
+#include "nrf24l01_hal.h"
 
-#include "stm32xxxx_hal.h"
+#include "stm32f1xx_hal.h"
 
-void stm32_hal_write_pin(void *port, uint16_t pin, bool value) {
-    
+void nrf24l01_hal_write_pin(void *port, uint16_t pin, bool value) {
+
 }
 
-uint8_t stm32_hal_spi_transmit(void *spi, const uint8_t *data, uint16_t size, uint32_t timeout) {
-    
+uint8_t nrf24l01_hal_spi_transmit(void *spi, const uint8_t *data, uint16_t size, uint32_t timeout) {
+
 }
 
-uint8_t stm32_hal_spi_receive(void *spi, uint8_t *data, uint16_t size, uint32_t timeout) {
-    
+uint8_t nrf24l01_hal_spi_receive(void *spi, uint8_t *data, uint16_t size, uint32_t timeout) {
+
 }
 
-uint32_t stm32_hal_get_sys_tick_val() {
-    
+void nrf24l01_hal_sleep_ms(uint32_t ms) {
+
 }
 
-uint32_t stm32_hal_get_sys_tick_load() {
-    
+void nrf24l01_hal_sleep_us(uint32_t us) {
+
 }
 
-uint32_t stm32_hal_get_system_core_clock() {
-    
+uint32_t nrf24l01_hal_get_ms_ticks() {
+
 }
 
-uint32_t stm32_hal_get_tick() {
-    
-}
 ```
 
 ### Step 5
